@@ -58,7 +58,7 @@ void ASignalWave::Interactable_Implementation(AActor* InteractActor)
 	if (!IsValid(PC)) return;
 
 	//Change Camera
-	PC->SetViewTargetWithBlend(this, CameraBlendTime, VTBlend_Linear);
+	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
 
 	//SWAP INPUT (Freeze Player, Wake Up Machine)
 	PlayerRef->DisableInput(PC);
@@ -103,7 +103,7 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 	if (ClampKnobRotation == KnobRotationObjective)
 	{
 		//Set All Back To Default
-		PC->SetViewTargetWithBlend(PlayerRef, CameraBlendTime, VTBlend_Linear);
+		PC->SetViewTargetWithBlend(PlayerRef, BlendSpeed, VTBlend_Linear);
 		this->DisableInput(PC);
 		PlayerRef->EnableInput(PC);
 		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));

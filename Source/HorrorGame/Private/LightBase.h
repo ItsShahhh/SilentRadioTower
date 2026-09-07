@@ -36,7 +36,10 @@ private:
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
 	UFUNCTION()
-	void EnableLight();
+	void EnableLight() const;
+	
+	UFUNCTION()
+	void DisableLight() const;
 
 public:	
 	// Called every frame

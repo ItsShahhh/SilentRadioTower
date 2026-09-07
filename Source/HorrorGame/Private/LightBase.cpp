@@ -19,7 +19,6 @@ ALightBase::ALightBase()
 	
 	LightComp = CreateDefaultSubobject<USpotLightComponent>("LightComponent");
 	LightComp->SetupAttachment(SceneComp);
-
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +31,7 @@ void ALightBase::BeginPlay()
 	if (WorldSystem)
 	{
 		WorldSystem->OnUpdateLight.AddDynamic(this, &ALightBase::EnableLight);
+		WorldSystem->OnDisableLight.AddDynamic(this, &ALightBase::DisableLight);
 	}
 }
 
@@ -41,9 +41,14 @@ void ALightBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-
-void ALightBase::EnableLight()
+void ALightBase::EnableLight() const
 {
 	if (!IsValid(LightComp)) return;
 	LightComp->SetVisibility(true);
+}
+
+void ALightBase::DisableLight() const
+{
+	if (!IsValid(LightComp)) return;
+	LightComp->SetVisibility(false);
 }

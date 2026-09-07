@@ -44,7 +44,7 @@ protected:
 	TObjectPtr<UInputAction> MouseRotateAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float CameraBlendTime = 5.0f;
+	float BlendSpeed = 5.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float KnobRotationSpeed = 5.0f;

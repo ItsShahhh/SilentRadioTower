@@ -10,6 +10,7 @@
 struct FDialogueLine;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
 /**
  * 
  */
@@ -20,6 +21,7 @@ class HORRORGAME_API UWorldSystem : public UWorldSubsystem
 public:
 	FOnUpdateLight OnUpdateLight;
 	FOnEnableDialogue OnProcessDialogue;
+	FOnDisableLight OnDisableLight;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	void PlayDialogueData(const UDataTable* DialogueTable, const FGameplayTag DialogueTag) const;
