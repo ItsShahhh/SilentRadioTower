@@ -8,7 +8,6 @@ struct FDialogueLine : public FTableRowBase
 {
 	GENERATED_BODY()
 	
-public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText SpeakerName;
 	

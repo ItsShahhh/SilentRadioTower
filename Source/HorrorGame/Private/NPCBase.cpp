@@ -59,7 +59,18 @@ void ANPCBase::Interactable_Implementation(AActor* InteractActor)
 	
 	if (WorldSystem)
 	{
-		WorldSystem->PlayDialogueData(DialogueTable, NPCTag);
+		//If One Of These Doesn't Have A Tag It Will Skip It
+		//Reminder: If The NPC Only Have Dialogue Or Quest Leave That Specific Tag Clear
+		
+		if (DialogueTag.IsValid())
+		{
+			WorldSystem->PlayDialogueData(DialogueTag);
+		}
+		
+		if (QuestTag.IsValid())
+		{
+			WorldSystem->StartQuest(QuestTag);
+		}
 	}
 	
 	if (InteractActor->Implements<UPlayerMode>())

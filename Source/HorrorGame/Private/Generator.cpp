@@ -38,7 +38,6 @@ void AGenerator::BeginPlay()
 void AGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AGenerator::Interactable_Implementation(AActor* InteractActor)

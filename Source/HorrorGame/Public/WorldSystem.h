@@ -4,13 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "QuestData.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "WorldSystem.generated.h"
 
+class UGameSettings;
+struct FQuestData;
 struct FDialogueLine;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
 /**
  * 
  */
@@ -18,12 +23,28 @@ UCLASS()
 class HORRORGAME_API UWorldSystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
+	
+private:
+	FQuestData* FoundQuestData;
+	
+	UPROPERTY()
+	const UGameSettings* GameSettings;
+	
+	UPROPERTY()
+	TObjectPtr<UDataTable> LoadQuestTable;
+	
+	UPROPERTY()
+	TObjectPtr<UDataTable> LoadDialogueTable;
+	
 public:
 	FOnUpdateLight OnUpdateLight;
 	FOnEnableDialogue OnProcessDialogue;
 	FOnDisableLight OnDisableLight;
+	FOnUpdateQuest OnUpdateQuest;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	void PlayDialogueData(const UDataTable* DialogueTable, const FGameplayTag DialogueTag) const;
 	
+	void PlayDialogueData(const FGameplayTag DialogueTag);
+	void StartQuest(const FGameplayTag QuestTag);
+	void ReportQuest() const;
 };

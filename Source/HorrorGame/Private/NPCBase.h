@@ -26,11 +26,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> LookAtComp;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UDataTable> DialogueTable;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Dialogue")
+	FGameplayTag DialogueTag;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag NPCTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Quest")
+	FGameplayTag QuestTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float NPCRotateSpeed = 5.0f;

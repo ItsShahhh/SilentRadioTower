@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class UQuestWidget;
 class UDialogueWidget;
 class ULineTraceComponent;
 class UInputComponent;
@@ -85,7 +86,10 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	UDialogueWidget* DialogueWidget;
+	TObjectPtr<UDialogueWidget> DialogueWidget;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
+	TObjectPtr<UQuestWidget> QuestWidget;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
 	float CameraSpeed = 5.0f;

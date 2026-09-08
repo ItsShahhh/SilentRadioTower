@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HorrorGame.h"
 #include "LineTraceComponent.h"
+#include "QuestWidget.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AHorrorGameCharacter::AHorrorGameCharacter()
@@ -59,6 +60,11 @@ void AHorrorGameCharacter::BeginPlay()
 		DialogueWidget->AddToViewport();
 		DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
 		DialogueWidget->OnDisableDialogue.AddDynamic(this, &AHorrorGameCharacter::DisableDialogueMode);
+	}
+	
+	if (QuestWidget)
+	{
+		QuestWidget->AddToViewport();
 	}
 }
 
