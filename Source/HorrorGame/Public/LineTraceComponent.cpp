@@ -2,9 +2,8 @@
 
 
 #include "LineTraceComponent.h"
-
 #include "InteractableInterface.h"
-#include "Camera/CameraComponent.h"
+#include "WorldSystem.h"
 
 // Sets default values for this component's properties
 ULineTraceComponent::ULineTraceComponent()
@@ -16,14 +15,19 @@ ULineTraceComponent::ULineTraceComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void ULineTraceComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
+	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	
+	Pawn = Cast<APawn>(GetOwner());
+	
+	if (Pawn)
+	{
+		PC = Pawn->GetLocalViewingPlayerController();
+	}
 }
 
 // Called every frame
@@ -31,21 +35,45 @@ void ULineTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	// Inside your Line Trace Component
+	if (Pawn)
+	{
+		if (PC)
+		{
+			FVector CameraLocation;
+			FRotator CameraRotation;
+		
+			PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+			const FVector TraceStart = CameraLocation;
+			const FVector TraceEnd = TraceStart + (CameraRotation.Vector() * LineTraceRange);
+		
+			FCollisionQueryParams CollisionQueryParams;
+			CollisionQueryParams.AddIgnoredActor(GetOwner());
+	
+			bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel12,CollisionQueryParams);
+			
+			if (bLastHit)
+			{
+				if (bHit)
+				{
+					WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
+				}
+				else
+				{
+					WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
+				}
+			}
+			//It Will Check Down Here and If bLastHit Still False It Will Not Call Function Above
+			//But If bLastHit Is True When Its Checking Down Here It Will Call The Function Above
+			//Reminder: This Is To Make Sure It Only Called Event Dispacther Once When bHit Is False
+			bLastHit = bHit;
+		}
+	}
 }
 
-void ULineTraceComponent::StartTraceLine(const UCameraComponent* CameraComp)
+void ULineTraceComponent::CalledTraceLine() const
 {
-	const FVector StartLocation = CameraComp->GetComponentLocation();
-	const FVector ForwardVector = CameraComp->GetForwardVector();
-	const FVector EndLocation = StartLocation + (ForwardVector * LineTraceRange);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 1, 0, 1);
-	
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(GetOwner());
-	
-	bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_GameTraceChannel12,CollisionQueryParams);
-	
 	if (bHit)
 	{
 		AActor* HitActor = HitResult.GetActor();

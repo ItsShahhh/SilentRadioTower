@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "LineTraceComponent.generated.h"
 
-
+class UWorldSystem;
 class UCameraComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,11 +28,21 @@ protected:
 private:
 	FHitResult HitResult;
 	
-	bool bHit = false;
+	UPROPERTY()
+	TObjectPtr<UWorldSystem> WorldSystem;
+	
+	UPROPERTY()
+	TObjectPtr<APawn> Pawn;
+	
+	UPROPERTY()
+	TObjectPtr<APlayerController> PC;
+	
+	bool bHit;
+	bool bLastHit;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void StartTraceLine(const UCameraComponent* CameraComp);
+	void CalledTraceLine() const;
+	
 };

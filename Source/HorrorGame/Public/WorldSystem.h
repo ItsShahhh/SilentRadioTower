@@ -14,6 +14,7 @@ struct FDialogueLine;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
 /**
@@ -41,6 +42,7 @@ public:
 	FOnEnableDialogue OnProcessDialogue;
 	FOnDisableLight OnDisableLight;
 	FOnUpdateQuest OnUpdateQuest;
+	FOnUpdateCrosshair OnUpdateCrosshair;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	

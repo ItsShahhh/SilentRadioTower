@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class UCrosshairWidget;
 class UQuestWidget;
 class UDialogueWidget;
 class ULineTraceComponent;
@@ -90,6 +91,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
 	TObjectPtr<UQuestWidget> QuestWidget;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
+	TObjectPtr<UCrosshairWidget> CrosshairWidget;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
 	float CameraSpeed = 5.0f;

@@ -43,8 +43,6 @@ void AGenerator::Tick(float DeltaTime)
 void AGenerator::Interactable_Implementation(AActor* InteractActor)
 {
 	if (!IsValid(InteractActor)) return;
-	if (!IsValid(WorldSystem)) return;
-	WorldSystem->OnUpdateLight.Broadcast();
 	
 	Pawn = Cast<APawn>(InteractActor);
 	if (Pawn)
@@ -82,6 +80,11 @@ void AGenerator::RotateValve(const FInputActionValue& Value)
 	
 	if (ValveMesh->GetComponentRotation().Equals(FRotator(0.0f, 0.0f, 180.0f), 0.1f))
 	{
+		if (IsValid(WorldSystem))
+		{
+			WorldSystem->OnUpdateLight.Broadcast();
+		}
+		
 		ExitFromGenerator();
 	}
 }

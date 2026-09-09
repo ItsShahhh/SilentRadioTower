@@ -2,6 +2,7 @@
 
 #include "HorrorGameCharacter.h"
 
+#include "CrosshairWidget.h"
 #include "DialogueWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -65,6 +66,11 @@ void AHorrorGameCharacter::BeginPlay()
 	if (QuestWidget)
 	{
 		QuestWidget->AddToViewport();
+	}
+	
+	if (CrosshairWidget)
+	{
+		CrosshairWidget->AddToViewport();
 	}
 }
 
@@ -168,7 +174,7 @@ void AHorrorGameCharacter::DoJumpEnd()
 void AHorrorGameCharacter::Interact()
 {
 	if (!IsValid(LineTraceComponent)) return;
-	LineTraceComponent->StartTraceLine(FirstPersonCameraComponent);
+	LineTraceComponent->CalledTraceLine();
 }
 
 void AHorrorGameCharacter::TalkToNPC_Implementation(const FVector& LookDirection)

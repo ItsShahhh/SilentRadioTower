@@ -65,6 +65,8 @@ private:
 	float NextSignal = 0;
 	
 	void ActivateMorseLight();
+	
+	bool bIsMachineActive;
 
 public:	
 	// Called every frame

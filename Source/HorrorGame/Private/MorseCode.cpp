@@ -46,7 +46,14 @@ void AMorseCode::Interactable_Implementation(AActor* /*InteractActor*/)
 	//Based On The Random Number It Chose The Morse Signal Map
 	ChoosenMorseSignal = MorseSignalMap[RandNumber];
 	
-	ActivateMorseLight();
+	if (!bIsMachineActive)
+	{
+		ActivateMorseLight();
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
+	}
 }
 
 void AMorseCode::ActivateMorseLight()
@@ -58,8 +65,12 @@ void AMorseCode::ActivateMorseLight()
 		//If Next Signal Is More Than Array That Mean The Morse Code Is Only That Much
 		//After That We Reset The Number For The Next Morse Code
 		NextSignal = 0;
+		bIsMachineActive = false;
 		return;
 	}
+	
+	//Set The bIsMachineActive To True Indicate Machine Is Current Active
+	bIsMachineActive = true;
 
 	//Crate Empty Float
 	float BeepDuration = 0;
