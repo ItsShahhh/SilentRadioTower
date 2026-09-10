@@ -177,9 +177,15 @@ void AHorrorGameCharacter::Interact()
 	LineTraceComponent->CalledTraceLine();
 }
 
-void AHorrorGameCharacter::TalkToNPC_Implementation(const FVector& LookDirection)
+void AHorrorGameCharacter::TalkToNPC_Implementation(const FName& BoneDirection, const ACharacter* CurrentCharacter)
 {
-	TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(FirstPersonCameraComponent->GetComponentLocation(), LookDirection);
+	if (BoneDirection.IsNone() || !IsValid(CurrentCharacter)) return;
+	
+	//Using Current Character Mesh and Getting The Bone Location We Set It As The Target For Player Head Rotation
+	//Let's Say If I Want Player To Look At The Hand, When Calling Talk To NPC I Put hand_l Bone Name
+	const FVector TargetLookAt = CurrentCharacter->GetMesh()->GetBoneLocation(BoneDirection);
+	
+	TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(FirstPersonCameraComponent->GetComponentLocation(), TargetLookAt);
 	GetLocalViewingPlayerController()->SetInputMode(UIMode);
 	GetLocalViewingPlayerController()->bShowMouseCursor = true;
 	bDialogueMode = true;

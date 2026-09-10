@@ -55,7 +55,6 @@ void ANPCBase::Interactable_Implementation(AActor* InteractActor)
 	CurrentNPCRotation = GetActorRotation();
 	TargetNPCRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), InteractActor->GetActorLocation());
 	bIsInteract = true;
-	const FVector LookDirection = GetMesh()->GetBoneLocation(FName("head"));
 	
 	if (WorldSystem)
 	{
@@ -75,7 +74,10 @@ void ANPCBase::Interactable_Implementation(AActor* InteractActor)
 	
 	if (InteractActor->Implements<UPlayerMode>())
 	{
-		IPlayerMode::Execute_TalkToNPC(InteractActor, LookDirection);
+		//Give The NPC Head Player Bone Because That What Default Bone To Look At When Talking To NPC
+		const FName HeadBone = GetMesh()->GetSocketBoneName("head");
+		
+		IPlayerMode::Execute_TalkToNPC(InteractActor, HeadBone, this);
 	}
 }
 

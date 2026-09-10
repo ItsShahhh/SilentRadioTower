@@ -127,7 +127,7 @@ public:
 	
 	virtual void Tick(float DeltaSeconds) override;
 	
-	virtual void TalkToNPC_Implementation(const FVector& LookDirection) override;
+	virtual void TalkToNPC_Implementation(const FName& BoneDirection, const ACharacter* CurrentCharacter) override;
 	
 };
 
