@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Interface.h"
 #include "PlayerMode.generated.h"
 
@@ -24,6 +25,6 @@ class HORRORGAME_API IPlayerMode
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void TalkToNPC(const FName& BoneDirection, const ACharacter* CurrentCharacter);
+	void LookAtActor(const AActor* LookAtActor);
 	
 };

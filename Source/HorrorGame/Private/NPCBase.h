@@ -51,6 +51,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
 	virtual void Interactable_Implementation(AActor* InteractActor) override;
+	virtual FGameplayTag GetGameplayTag_Implementation() override;
 };

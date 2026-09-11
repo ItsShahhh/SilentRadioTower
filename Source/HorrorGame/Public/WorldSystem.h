@@ -46,7 +46,9 @@ public:
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
+	UFUNCTION(BlueprintCallable)
 	void PlayDialogueData(const FGameplayTag DialogueTag);
+	UFUNCTION(BlueprintCallable)
 	void StartQuest(const FGameplayTag QuestTag);
 	void ReportQuest() const;
 };

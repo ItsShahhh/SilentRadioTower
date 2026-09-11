@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Interface.h"
 #include "InteractableInterface.generated.h"
 
@@ -25,4 +26,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void Interactable(AActor* InteractActor);
+	
+	UFUNCTION(BlueprintNativeEvent)
+	FGameplayTag GetGameplayTag();
 };

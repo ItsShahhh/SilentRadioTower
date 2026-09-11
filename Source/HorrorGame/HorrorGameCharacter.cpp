@@ -14,6 +14,8 @@
 #include "LineTraceComponent.h"
 #include "QuestWidget.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/StaticMeshActor.h"
+
 
 AHorrorGameCharacter::AHorrorGameCharacter()
 {
@@ -177,17 +179,33 @@ void AHorrorGameCharacter::Interact()
 	LineTraceComponent->CalledTraceLine();
 }
 
-void AHorrorGameCharacter::TalkToNPC_Implementation(const FName& BoneDirection, const ACharacter* CurrentCharacter)
+void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 {
-	if (BoneDirection.IsNone() || !IsValid(CurrentCharacter)) return;
+	if (!IsValid(LookAtActor)) return;
 	
-	//Using Current Character Mesh and Getting The Bone Location We Set It As The Target For Player Head Rotation
-	//Let's Say If I Want Player To Look At The Hand, When Calling Talk To NPC I Put hand_l Bone Name
-	const FVector TargetLookAt = CurrentCharacter->GetMesh()->GetBoneLocation(BoneDirection);
+	//Instanly Stop Player Movement
+	GetCharacterMovement()->StopMovementImmediately();
+	
+	//Create Empty Vector
+	FVector TargetLookAt;
+	
+	if (const ACharacter* Character = Cast<ACharacter>(LookAtActor))
+	{
+		//Give The NPC Head Player Bone Because That What Default Bone To Look At When Talking To NPC
+		TargetLookAt = Character->GetMesh()->GetSocketLocation("head");
+	}
+	else if (const AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(LookAtActor))
+	{
+		TargetLookAt = StaticMeshActor->GetStaticMeshComponent()->GetComponentLocation();
+	}
+	
+	if (IsValid(GetLocalViewingPlayerController()))
+	{
+		GetLocalViewingPlayerController()->SetInputMode(UIMode);
+		GetLocalViewingPlayerController()->bShowMouseCursor = true;
+	}
 	
 	TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(FirstPersonCameraComponent->GetComponentLocation(), TargetLookAt);
-	GetLocalViewingPlayerController()->SetInputMode(UIMode);
-	GetLocalViewingPlayerController()->bShowMouseCursor = true;
 	bDialogueMode = true;
 }
 

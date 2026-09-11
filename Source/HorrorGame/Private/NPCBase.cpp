@@ -74,11 +74,13 @@ void ANPCBase::Interactable_Implementation(AActor* InteractActor)
 	
 	if (InteractActor->Implements<UPlayerMode>())
 	{
-		//Give The NPC Head Player Bone Because That What Default Bone To Look At When Talking To NPC
-		const FName HeadBone = GetMesh()->GetSocketBoneName("head");
-		
-		IPlayerMode::Execute_TalkToNPC(InteractActor, HeadBone, this);
+		IPlayerMode::Execute_LookAtActor(InteractActor, this);
 	}
+}
+
+FGameplayTag ANPCBase::GetGameplayTag_Implementation()
+{
+	return DialogueTag;
 }
 
 

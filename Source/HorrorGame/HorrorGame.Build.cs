@@ -26,7 +26,9 @@ public class HorrorGame : ModuleRules
 			"UMG",
 			"Slate",
 			"GameplayTags",
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"LevelSequence",
+			"MovieScene"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
