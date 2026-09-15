@@ -41,7 +41,7 @@ protected:
 	
 	//Enable This If Want To Make Sequence Play When See An Actor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
-	bool bRenderedActor = false;
+	bool bRenderedTrigger = false;
 	
 	//Enable This If Want To Make Sequence Play When See An Actor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")

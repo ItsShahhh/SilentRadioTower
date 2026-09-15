@@ -44,6 +44,18 @@ void AWorldEventBase::BeginPlay()
 	{
 		BoxComp->SetVisibility(false);
 	}
+	
+	//Enable and Disable Tick Based On Rendered Trigger To Save Perfomance
+	//Because In The Game There Going To be Alot Of World Event
+	//Maybe Can Try When Report Event Then Need To Enable Actor Collision and Stuff From There Enabled Tick Based On Tag
+	if (bRenderedTrigger)
+	{
+		SetActorTickEnabled(true);
+	}
+	else
+	{
+		SetActorTickEnabled(false);
+	}
 }
 
 // Called every frame
@@ -51,7 +63,7 @@ void AWorldEventBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (bRenderedActor)
+	if (bRenderedTrigger)
 	{
 		if (SequenceActor && Character)
 		{
@@ -118,9 +130,10 @@ void AWorldEventBase::TriggerSequencer()
 			{
 				if (SequenceActor->Implements<UInteractableInterface>())
 				{
+					//Getting Gameplay Tag For Dialogue From Sequence Actor That We Reference In The World
 					if (const FGameplayTag DialogueTag = IInteractableInterface::Execute_GetGameplayTag(SequenceActor); DialogueTag.IsValid())
 					{
-						//If The Sequence Doesn't Have a Dialogue Just Leave It None, So This Doesn't Get Called
+						//If The Sequence Doesn't Have a Dialogue Just Leave Dialogue Tag None, So This Doesn't Get Called
 						WorldSystem->PlayDialogueData(DialogueTag);
 					}
 				}
