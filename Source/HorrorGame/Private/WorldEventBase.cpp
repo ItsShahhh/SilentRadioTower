@@ -9,6 +9,8 @@
 #include "MovieSceneSequencePlayer.h"
 #include "PlayerMode.h"
 #include "WorldSystem.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AWorldEventBase::AWorldEventBase()
@@ -28,37 +30,63 @@ void AWorldEventBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AWorldEventBase::TriggerSequencer);
+	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AWorldEventBase::ComponentBeginOverlap);
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	
+	Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	
+	if (bActivateOverlap)
+	{
+		BoxComp->SetVisibility(true);
+	}
+	else
+	{
+		BoxComp->SetVisibility(false);
+	}
 }
 
 // Called every frame
 void AWorldEventBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AWorldEventBase::TriggerSequencer(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//Check If Level Sequence Is Already Triggered
-	if (bHasPlay) return;
 	
-	//Only Set PC Variable Once
-	if (!PC)
+	if (bRenderedActor)
 	{
-		if (const APawn* Pawn = Cast<APawn>(OtherActor))
+		if (SequenceActor && Character)
 		{
-			PC = Pawn->GetLocalViewingPlayerController();
+			if (SequenceActor->WasRecentlyRendered(0.1f))
+			{
+				const FVector CharacterForward = Character->GetActorForwardVector();
+				
+				const FVector CharacterLocation = Character->GetActorLocation();
+				const FVector SeqActorLocation = SequenceActor->GetActorLocation();
+				const FVector DirectionToSequence = (SeqActorLocation - CharacterLocation).GetSafeNormal();
+				
+				const float Dot = FVector::DotProduct(CharacterForward, DirectionToSequence);
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("%f"), Dot));
+				
+				if (Dot > RenderTriggerRange)
+				{
+					if (!bHasPlay)
+					{
+						TriggerSequencer();
+						
+						//Disable Tick When Sequence Trigger
+						SetActorTickEnabled(false);
+					}
+				}
+			}
 		}
 	}
+}
+
+void AWorldEventBase::TriggerSequencer()
+{
+	if (!IsValid(SequenceActor)) return;
 	
-	if (!IsValid(PC)) return;
-	if (!IsValid(GenericActor)) return;
-	
-	//When Trigger Disable Both Mouse and Keyboard
-	PC->SetIgnoreLookInput(true);
-	PC->SetIgnoreMoveInput(true);
+	//Check If Level Sequence Is Already Triggered
+	if (bHasPlay) return;
 	
 	//Create Level Seuquence Player
 	ALevelSequenceActor* OutActor;
@@ -72,29 +100,40 @@ void AWorldEventBase::TriggerSequencer(UPrimitiveComponent* OverlappedComp, AAct
 		//Play The Level Sequence
 		SeqPlayer->Play();
 		
-		SeqPlayer->OnNativeFinished.BindWeakLambda(this, [this, OtherActor]
+		//Set Has Play Boolean To True So If Used Render Sequeunce It's Prevent It From Getting Called Many Times
+		bHasPlay = true;
+		
+		SeqPlayer->OnNativeFinished.BindWeakLambda(this, [this]
 		{
-			if (OtherActor->Implements<UPlayerMode>())
+			//If True Than When Seuquence Finish The Player Should Rotate To Look At Actor
+			if (bLookAtActor)
 			{
-				IPlayerMode::Execute_LookAtActor(OtherActor, GenericActor);
+				if (Character && Character->Implements<UPlayerMode>())
+				{
+					IPlayerMode::Execute_LookAtActor(Character, SequenceActor);
+				}
 			}
 			
 			if (WorldSystem)
 			{
-				if (GenericActor->Implements<UInteractableInterface>())
+				if (SequenceActor->Implements<UInteractableInterface>())
 				{
-					if (const FGameplayTag DialogueTag = IInteractableInterface::Execute_GetGameplayTag(GenericActor); DialogueTag.IsValid())
+					if (const FGameplayTag DialogueTag = IInteractableInterface::Execute_GetGameplayTag(SequenceActor); DialogueTag.IsValid())
 					{
 						//If The Sequence Doesn't Have a Dialogue Just Leave It None, So This Doesn't Get Called
 						WorldSystem->PlayDialogueData(DialogueTag);
 					}
 				}
 			}
-			
-			PC->SetIgnoreLookInput(false);
-			PC->SetIgnoreMoveInput(false);
-			bHasPlay = true;
 		});
 	}
 }
 
+
+void AWorldEventBase::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (bActivateOverlap)
+	{
+		TriggerSequencer();
+	}
+}

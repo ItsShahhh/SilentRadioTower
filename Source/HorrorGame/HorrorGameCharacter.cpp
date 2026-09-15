@@ -184,7 +184,7 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 	if (!IsValid(LookAtActor)) return;
 	
 	//Instanly Stop Player Movement
-	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
 	
 	//Create Empty Vector
 	FVector TargetLookAt;
@@ -211,6 +211,9 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 
 void AHorrorGameCharacter::DisableDialogueMode() const
 {
+	//Enable Player Movement Again
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	
 	GetLocalViewingPlayerController()->SetInputMode(GameMode);
 	GetLocalViewingPlayerController()->bShowMouseCursor = false;
 }
