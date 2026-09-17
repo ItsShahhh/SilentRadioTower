@@ -13,18 +13,20 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 	
 	//Get Game Settings From Project Setting For Data Table
 	GameSettings =  GetDefault<UGameSettings>();
-}
-
-void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag)
-{
-	if (!GameSettings) return;
-	if (!DialogueTag.IsValid()) return;
 	
-	if (!LoadDialogueTable)
+	if (GameSettings)
 	{
 		//Only Load The Global Table Once
 		LoadDialogueTable = GameSettings->GlobalDialogueTable.LoadSynchronous();
+		
+		//Only Load The Global Table Once
+		LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
 	}
+}
+
+void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
+{
+	if (!DialogueTag.IsValid()) return;
 	
 	if (LoadDialogueTable)
 	{
@@ -43,14 +45,7 @@ void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag)
 
 void UWorldSystem::StartQuest(const FGameplayTag QuestTag)
 {
-	if (!GameSettings) return;
 	if (!QuestTag.IsValid()) return;
-	
-	if (!LoadQuestTable)
-	{
-		//Only Load The Global Table Once
-		LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
-	}
 	
 	if (LoadQuestTable)
 	{
@@ -60,14 +55,21 @@ void UWorldSystem::StartQuest(const FGameplayTag QuestTag)
 	
 		if (FoundQuestData)
 		{
+			ActiveQuest.ActiveQuestTag = FoundQuestData->QuestTag;
+			ActiveQuest.NextActiveQuest = FoundQuestData->NextQuest;
+			
 			OnUpdateQuest.Broadcast(*FoundQuestData);
 		}
 	}
 }
 
-void UWorldSystem::ReportQuest() const
+void UWorldSystem::ReportQuest()
 {
 	if (!FoundQuestData) return;
+	if (!ActiveQuest.ActiveQuestTag.IsValid())	return;
 	
-	FoundQuestData->bQuestCompleted = true;
+	if (ActiveQuest.ActiveQuestTag.MatchesTag(FoundQuestData->QuestTag))
+	{
+		StartQuest(ActiveQuest.NextActiveQuest);
+	}
 }

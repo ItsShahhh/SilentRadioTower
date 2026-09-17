@@ -13,25 +13,17 @@ AGenerator::AGenerator()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
-	SceneComp = CreateDefaultSubobject<USceneComponent>("SceneComponent");
-	SetRootComponent(SceneComp);
-	
-	GeneratorMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	GeneratorMesh->SetupAttachment(SceneComp);
-	
 	ValveMesh = CreateDefaultSubobject<UStaticMeshComponent>("ValveMesh");
-	ValveMesh->SetupAttachment(GeneratorMesh);
+	ValveMesh->SetupAttachment(MainMesh);
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComp->SetupAttachment(GeneratorMesh);
+	CameraComp->SetupAttachment(MainMesh);
 }
 
 // Called when the game starts or when spawned
 void AGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 }
 
 // Called every frame
@@ -42,6 +34,8 @@ void AGenerator::Tick(float DeltaTime)
 
 void AGenerator::Interactable_Implementation(AActor* InteractActor)
 {
+	Super::Interactable_Implementation(InteractActor);
+	
 	if (!IsValid(InteractActor)) return;
 	
 	Pawn = Cast<APawn>(InteractActor);

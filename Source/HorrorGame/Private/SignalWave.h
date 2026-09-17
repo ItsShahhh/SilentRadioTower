@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableInterface.h"
-#include "GameFramework/Actor.h"
+#include "InteractableBase.h"
 #include "SignalWave.generated.h"
 
 class UArrowComponent;
@@ -13,7 +12,7 @@ class UInputAction;
 class UCameraComponent;
 
 UCLASS()
-class ASignalWave : public AActor, public IInteractableInterface
+class ASignalWave : public AInteractableBase
 {
 	GENERATED_BODY()
 	
@@ -24,12 +23,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
-	TObjectPtr<USceneComponent> SceneComp;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
-	TObjectPtr<UStaticMeshComponent> MachineMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
 	TObjectPtr<UStaticMeshComponent> KnobMesh;

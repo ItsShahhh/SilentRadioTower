@@ -4,6 +4,7 @@
 #include "SignalWave.h"
 
 #include "EnhancedInputComponent.h"
+#include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 
@@ -11,19 +12,13 @@
 ASignalWave::ASignalWave()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	
-	SceneComp = CreateDefaultSubobject<USceneComponent>("SceneComponent");
-	SetRootComponent(SceneComp);
-	
-	MachineMesh = CreateDefaultSubobject<UStaticMeshComponent>("MachineMesh");
-	MachineMesh->SetupAttachment(SceneComp);
+	PrimaryActorTick.bCanEverTick = false;
 	
 	KnobMesh = CreateDefaultSubobject<UStaticMeshComponent>("KnobMesh");
-	KnobMesh->SetupAttachment(SceneComp);
+	KnobMesh->SetupAttachment(MainMesh);
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComp->SetupAttachment(SceneComp);
+	CameraComp->SetupAttachment(MainMesh);
 	
 	ArrowComp = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
 	ArrowComp->SetupAttachment(KnobMesh);
@@ -44,6 +39,8 @@ void ASignalWave::Tick(float DeltaTime)
 
 void ASignalWave::Interactable_Implementation(AActor* InteractActor)
 {
+	Super::Interactable_Implementation(InteractActor);
+	
 	if (!IsValid(InteractActor)) return;
     
 	if (!PlayerRef && !PC)
@@ -109,5 +106,10 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		MouseKnobRotation = 0.0f;
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("Correct"));
+		
+		if (WorldSystem)
+		{
+			WorldSystem->ReportQuest();
+		}
 	}
 }

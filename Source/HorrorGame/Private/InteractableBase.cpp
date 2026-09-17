@@ -1,0 +1,37 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "InteractableBase.h"
+#include "WorldSystem.h"
+
+// Sets default values
+AInteractableBase::AInteractableBase()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	
+	RootComp = CreateDefaultSubobject<USceneComponent>("RootComponent");
+	SetRootComponent(RootComp);
+	
+	MainMesh = CreateDefaultSubobject<UStaticMeshComponent>("MainMesh");
+	MainMesh->SetupAttachment(RootComp);
+}
+
+// Called when the game starts or when spawned
+void AInteractableBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (!WorldSystem)
+	{
+		WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	}
+}
+
+// Called every frame
+void AInteractableBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+

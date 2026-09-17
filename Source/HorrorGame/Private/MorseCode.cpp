@@ -10,14 +10,8 @@ AMorseCode::AMorseCode()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
-	SceneComp = CreateDefaultSubobject<USceneComponent>("SceneComponent");
-	SetRootComponent(SceneComp);
-	
-	MachineMesh = CreateDefaultSubobject<UStaticMeshComponent>("MachineMesh");
-	MachineMesh->SetupAttachment(SceneComp);
-	
 	MorseLight = CreateDefaultSubobject<USpotLightComponent>("MorseLight");
-	MorseLight->SetupAttachment(MachineMesh);
+	MorseLight->SetupAttachment(MainMesh);
 }
 
 // Called when the game starts or when spawned
@@ -34,8 +28,10 @@ void AMorseCode::Tick(float DeltaTime)
 
 }
 
-void AMorseCode::Interactable_Implementation(AActor* /*InteractActor*/)
+void AMorseCode::Interactable_Implementation(AActor* InteractActor)
 {
+	Super::Interactable_Implementation(InteractActor);
+	
 	if (!IsValid(MorseLight)) return;
 	
 	//Randomize Number For Each Interact

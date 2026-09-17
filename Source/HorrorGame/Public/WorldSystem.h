@@ -14,12 +14,26 @@ struct FDialogueLine;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCompletedQuest);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
 /**
  * 
  */
+
+USTRUCT()
+struct FActiveQuest
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	FGameplayTag ActiveQuestTag;
+	
+	UPROPERTY()
+	FGameplayTag NextActiveQuest;
+};
+
 UCLASS()
 class HORRORGAME_API UWorldSystem : public UWorldSubsystem
 {
@@ -27,6 +41,8 @@ class HORRORGAME_API UWorldSystem : public UWorldSubsystem
 	
 private:
 	FQuestData* FoundQuestData;
+	
+	FActiveQuest ActiveQuest;
 	
 	UPROPERTY()
 	const UGameSettings* GameSettings;
@@ -43,12 +59,13 @@ public:
 	FOnDisableLight OnDisableLight;
 	FOnUpdateQuest OnUpdateQuest;
 	FOnUpdateCrosshair OnUpdateCrosshair;
+	FOnCompletedQuest OnCompletedQuest;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	UFUNCTION(BlueprintCallable)
-	void PlayDialogueData(const FGameplayTag DialogueTag);
+	void PlayDialogueData(const FGameplayTag DialogueTag) const;
 	UFUNCTION(BlueprintCallable)
 	void StartQuest(const FGameplayTag QuestTag);
-	void ReportQuest() const;
+	void ReportQuest();
 };

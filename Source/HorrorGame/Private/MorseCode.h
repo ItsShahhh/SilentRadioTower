@@ -1,10 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
-#include "InteractableInterface.h"
-#include "GameFramework/Actor.h"
+#include "InteractableBase.h"
 #include "MorseCode.generated.h"
 
 class USpotLightComponent;
@@ -27,7 +25,7 @@ struct FMorseSequence
 };
 
 UCLASS()
-class AMorseCode : public AActor, public IInteractableInterface
+class AMorseCode : public AInteractableBase
 {
 	GENERATED_BODY()
 	
@@ -38,12 +36,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<USceneComponent> SceneComp;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UStaticMeshComponent> MachineMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USpotLightComponent> MorseLight;
