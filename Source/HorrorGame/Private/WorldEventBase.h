@@ -47,6 +47,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
 	bool bActivateOverlap = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Type Of Event")
+	bool QuestEvent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Type Of Event")
+	bool SequenceEvent;
+	
 	//Enable This If Want To Make Sequence Play When See An Actor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
 	float RenderTriggerRange = 0.8f;
@@ -56,6 +62,8 @@ private:
 	void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	void TriggerSequencer();
+	
+	void TriggerQuest() const;
 	
 	FTimerHandle SequenceTimerHandle;
 	

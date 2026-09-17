@@ -95,10 +95,13 @@ void AWorldEventBase::Tick(float DeltaTime)
 
 void AWorldEventBase::TriggerSequencer()
 {
-	if (!IsValid(SequenceActor)) return;
+	//If Sequence Event is False That Meant This World Event Is Inly For Triggering Quest
+	if (!SequenceEvent) return;
 	
 	//Check If Level Sequence Is Already Triggered
 	if (bHasPlay) return;
+	
+	if (!IsValid(SequenceActor)) return;
 	
 	//Create Level Seuquence Player
 	ALevelSequenceActor* OutActor;
@@ -142,11 +145,17 @@ void AWorldEventBase::TriggerSequencer()
 	}
 }
 
+void AWorldEventBase::TriggerQuest() const
+{
+	if (!QuestEvent) return;
+	if (!WorldSystem) return;
+	
+	WorldSystem->ReportQuest();
+}
+
 
 void AWorldEventBase::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bActivateOverlap)
-	{
-		TriggerSequencer();
-	}
+	TriggerSequencer();
+	TriggerQuest();
 }
