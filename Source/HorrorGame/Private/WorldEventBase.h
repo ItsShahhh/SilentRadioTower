@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "WorldEventBase.generated.h"
 
@@ -36,45 +37,57 @@ protected:
 	TObjectPtr<ULevelSequence> LevelSequence;
 	
 	//Enable This To Move Player Camera To Actor After Finished Sequence
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
 	bool bLookAtActor = false;
 	
-	//Enable This If Want To Make Sequence Play When See An Actor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
-	bool bRenderedTrigger = false;
+	//Enable This If Want To Trigger Sequence Without Need To Complete Quest First
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
+	bool bEarlyTrigger = false;
 	
-	//Enable This If Want To Make Sequence Play When See An Actor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
+	//Enable This If Want To Trigger Sequence Only After Completing Quest
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
+	bool bLaterTrigger = false;
+	
+	//Enable This If Want To Trigger Sequence Using Occlusion
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
+	bool bRenderTriggered = false;
+	
+	//Enable This If Want To Trigger Sequence When Overlapping With Box Collision
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
 	bool bActivateOverlap = false;
 	
+	//Enable This If Want World Event To Be Able To Report Completed Quest
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Type Of Event")
-	bool QuestEvent;
+	bool bQuestEvent;
 	
+	//Enable This If Want World Event Base To Play Sequence
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Type Of Event")
-	bool SequenceEvent;
+	bool bSequenceEvent;
 	
-	//Enable This If Want To Make Sequence Play When See An Actor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Sequence")
+	//Range For How Close It Will Trigger Render For Sequence
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Type Of Sequence")
 	float RenderTriggerRange = 0.8f;
+	
+	//Set This To Quest Event Tag To Enable World Event After Completing That Certain Quest
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tag")
+	FGameplayTag QuestTagForEvent;
 
 private:
 	UFUNCTION()
 	void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+	UFUNCTION()
+	void ToggleWorldEvent(const FGameplayTag ReceiveQuestTag);
 	void TriggerSequencer();
-	
 	void TriggerQuest() const;
 	
 	FTimerHandle SequenceTimerHandle;
+	bool bHasPlay = false;
 	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
-	
 	UPROPERTY()
 	TObjectPtr<ACharacter> Character;
-	
-	bool bHasPlay = false;
-	
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

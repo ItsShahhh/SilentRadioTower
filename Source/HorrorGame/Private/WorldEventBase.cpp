@@ -31,30 +31,73 @@ void AWorldEventBase::BeginPlay()
 	Super::BeginPlay();
 	
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AWorldEventBase::ComponentBeginOverlap);
-	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
-	
 	Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	
-	if (bActivateOverlap)
+	if (WorldSystem)
 	{
-		BoxComp->SetVisibility(true);
+		WorldSystem->OnCompletedQuest.AddDynamic(this, &AWorldEventBase::ToggleWorldEvent);
 	}
-	else
+
+#pragma region Importan Checks
+	
+	//Empty Bool
+	bool bImportanChecks = false;
+	
+	if (!bEarlyTrigger && !bLaterTrigger)
 	{
-		BoxComp->SetVisibility(false);
+		bImportanChecks = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("For This Actor %s: Both Early and Late Trigger Is Not Set"), *GetActorNameOrLabel()));
 	}
 	
-	//Enable and Disable Tick Based On Rendered Trigger To Save Perfomance
-	//Because In The Game There Going To be Alot Of World Event
-	//Maybe Can Try When Report Event Then Need To Enable Actor Collision and Stuff From There Enabled Tick Based On Tag
-	if (bRenderedTrigger)
+	if (!bRenderTriggered && !bActivateOverlap)
 	{
-		SetActorTickEnabled(true);
+		bImportanChecks = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("For This Actor %s: Both Render and Overlap Trigger Is Not Set"), *GetActorNameOrLabel()));
 	}
-	else
+	
+	if (!bSequenceEvent && !bQuestEvent)
+	{
+		bImportanChecks = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("For This Actor %s: Both Sequence and Quest Event Is Not Set"), *GetActorNameOrLabel()));
+	}
+	
+	if (!SequenceActor)
+	{
+		bImportanChecks = true;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("For This Actor %s: Sequence Actor Is Not Set"), *GetActorNameOrLabel()));
+	}
+	
+	if (bImportanChecks)
 	{
 		SetActorTickEnabled(false);
+		BoxComp->SetVisibility(false);
+	}
+#pragma endregion Importan Boolean Checks
+	
+	//Enable and Disable Tick Based On Rendered Trigger To Save Perfomance
+	//If Using Later Rendered Trigger The Tick and Collision Box Only Avalaible After Finish Quest
+	if (bLaterTrigger)
+	{
+		SetActorTickEnabled(false);
+		
+		if (BoxComp && SequenceActor)
+		{
+			BoxComp->SetVisibility(false);
+			SequenceActor->SetActorHiddenInGame(true);
+			SequenceActor->SetActorEnableCollision(false);
+		}
+	}
+	else if (bEarlyTrigger)
+	{
+		SetActorTickEnabled(bRenderTriggered);
+		
+		if (BoxComp && SequenceActor)
+		{
+			BoxComp->SetVisibility(bActivateOverlap);
+			SequenceActor->SetActorHiddenInGame(false);
+			SequenceActor->SetActorEnableCollision(true);
+		}
 	}
 }
 
@@ -63,30 +106,27 @@ void AWorldEventBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (bRenderedTrigger)
+	if (SequenceActor && Character)
 	{
-		if (SequenceActor && Character)
+		if (SequenceActor->WasRecentlyRendered(0.1f))
 		{
-			if (SequenceActor->WasRecentlyRendered(0.1f))
+			const FVector CharacterForward = Character->GetActorForwardVector();
+				
+			const FVector CharacterLocation = Character->GetActorLocation();
+			const FVector SeqActorLocation = SequenceActor->GetActorLocation();
+			const FVector DirectionToSequence = (SeqActorLocation - CharacterLocation).GetSafeNormal();
+				
+			const float Dot = FVector::DotProduct(CharacterForward, DirectionToSequence);
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("%f"), Dot));
+				
+			if (Dot > RenderTriggerRange)
 			{
-				const FVector CharacterForward = Character->GetActorForwardVector();
-				
-				const FVector CharacterLocation = Character->GetActorLocation();
-				const FVector SeqActorLocation = SequenceActor->GetActorLocation();
-				const FVector DirectionToSequence = (SeqActorLocation - CharacterLocation).GetSafeNormal();
-				
-				const float Dot = FVector::DotProduct(CharacterForward, DirectionToSequence);
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("%f"), Dot));
-				
-				if (Dot > RenderTriggerRange)
+				if (!bHasPlay)
 				{
-					if (!bHasPlay)
-					{
-						TriggerSequencer();
+					TriggerSequencer();
 						
-						//Disable Tick When Sequence Trigger
-						SetActorTickEnabled(false);
-					}
+					//Disable Tick When Sequence Trigger
+					SetActorTickEnabled(false);
 				}
 			}
 		}
@@ -96,7 +136,7 @@ void AWorldEventBase::Tick(float DeltaTime)
 void AWorldEventBase::TriggerSequencer()
 {
 	//If Sequence Event is False That Meant This World Event Is Inly For Triggering Quest
-	if (!SequenceEvent) return;
+	if (!bSequenceEvent) return;
 	
 	//Check If Level Sequence Is Already Triggered
 	if (bHasPlay) return;
@@ -147,10 +187,35 @@ void AWorldEventBase::TriggerSequencer()
 
 void AWorldEventBase::TriggerQuest() const
 {
-	if (!QuestEvent) return;
+	if (!bQuestEvent) return;
 	if (!WorldSystem) return;
 	
-	WorldSystem->ReportQuest();
+	WorldSystem->CompletedQuest();
+}
+
+void AWorldEventBase::ToggleWorldEvent(const FGameplayTag ReceiveQuestTag)
+{
+	if (!ReceiveQuestTag.IsValid()) return;
+	if (!QuestTagForEvent.IsValid()) return;
+	
+	if (ReceiveQuestTag.MatchesTag(QuestTagForEvent))
+	{
+		if (bRenderTriggered)
+		{
+			SetActorTickEnabled(bRenderTriggered);
+		}
+		
+		if (bActivateOverlap)
+		{
+			BoxComp->SetVisibility(bActivateOverlap);
+		}
+		
+		if (SequenceActor)
+		{
+			SequenceActor->SetActorHiddenInGame(false);
+			SequenceActor->SetActorEnableCollision(true);
+		}
+	}
 }
 
 

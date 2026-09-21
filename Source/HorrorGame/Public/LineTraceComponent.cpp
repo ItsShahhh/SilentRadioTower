@@ -50,9 +50,8 @@ void ULineTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		
 			FCollisionQueryParams CollisionQueryParams;
 			CollisionQueryParams.AddIgnoredActor(GetOwner());
-			CollisionQueryParams.bTraceComplex = true;
 	
-			bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel12,CollisionQueryParams);
+			bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel2, CollisionQueryParams);
 			
 			if (bLastHit)
 			{

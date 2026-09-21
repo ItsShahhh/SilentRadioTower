@@ -63,11 +63,15 @@ void UWorldSystem::StartQuest(const FGameplayTag QuestTag)
 	}
 }
 
-void UWorldSystem::ReportQuest()
+void UWorldSystem::CompletedQuest()
 {
 	if (!FoundQuestData) return;
 	if (!ActiveQuest.ActiveQuestTag.IsValid())	return;
 	
+	//When Completed Quest It Will BroadCast an Event Dispacther To Check for World Base Event To Activate
+	OnCompletedQuest.Broadcast(ActiveQuest.ActiveQuestTag);
+	
+	//Active Next Quest When Completed The Active Quest
 	if (ActiveQuest.ActiveQuestTag.MatchesTag(FoundQuestData->QuestTag))
 	{
 		StartQuest(ActiveQuest.NextActiveQuest);

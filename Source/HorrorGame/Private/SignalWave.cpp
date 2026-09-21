@@ -109,7 +109,7 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 		
 		if (WorldSystem)
 		{
-			WorldSystem->ReportQuest();
+			WorldSystem->CompletedQuest();
 		}
 	}
 }
