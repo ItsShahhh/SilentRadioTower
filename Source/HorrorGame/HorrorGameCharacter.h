@@ -8,6 +8,9 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class UOptionMenuWidget;
+enum ESettingMenus : int;
+class UPauseMenuWidget;
 class UCrosshairWidget;
 class UQuestWidget;
 class UDialogueWidget;
@@ -58,6 +61,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* InteractAction;
 	
+	UPROPERTY(EditAnywhere, Category ="Input")
+	UInputAction* TogglePauseMenuAction;
+	
 	UPROPERTY(EditAnywhere, Category ="Components")
 	ULineTraceComponent* LineTraceComponent;
 
@@ -95,6 +101,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
 	TObjectPtr<UCrosshairWidget> CrosshairWidget;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
+	TObjectPtr<UPauseMenuWidget> PauseMenuWidget;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
+	TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
 	float CameraSpeed = 5.0f;
 
@@ -102,17 +114,23 @@ private:
 	FRotator CurrentCameraRotation;
 	FRotator TargetCameraRotation;
 	
-	bool bDialogueMode = false;
-
-	void Interact();
-	
 	FInputModeGameOnly GameMode;
 	FInputModeUIOnly UIMode;
-	
+	FInputModeGameAndUI GameandUIMode;
 	FTimerHandle DialogueTimerHandle;
+	
+	bool bDialogueMode = false;
+	bool bIsPauseMenuToggle = false;
+	bool bIsOptionMenuToggle = false;
 	
 	UFUNCTION()
 	void DisableDialogueMode() const;
+	UFUNCTION()
+	void PauseMenuOptions(const ESettingMenus SettingMenus);
+	void Interact();
+	void TogglePauseMenu();
+	void GameModeState() const;
+	void GameandUIModeState() const;
 	
 public:
 	AHorrorGameCharacter();
