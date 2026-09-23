@@ -29,6 +29,21 @@ void UDialogueWidget::InitializeDialogue(const FDialogueLine& DialogueData)
 	//Enable Dialogue Widget Because We Make It Collapsed Inside Player Character When Added
 	SetVisibility(ESlateVisibility::Visible);
 	
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		FInputModeUIOnly InputMode;
+        
+		// TakeWidget() grabs the underlying C++ Slate code and forces the lock
+		InputMode.SetWidgetToFocus(TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        
+		PC->SetInputMode(InputMode);
+		PC->SetShowMouseCursor(true);
+	}
+
+	// 3. Force the physical widget to accept keyboard/mouse focus
+	SetFocus();
+	
 	//Set All The Dialogue Data To This Everytime Starting The Dialogue
 	NPCNameTextBlock->SetText(DialogueData.SpeakerName);
 	DialogueSpeed = DialogueData.TextSpeed;
@@ -81,7 +96,7 @@ FReply UDialogueWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, con
 	}
 	else
 	{
-		//Add Dialogue Array Index (If Do Has Multiply Dialogue String)
+		//Add Dialogue Array Index (If Do Has Multiply Dialogue String
 		CurrentDialogueArrayIndex++;
 		
 		//Check The Current Number For Current Dialogue Array If Contains Inside The Array

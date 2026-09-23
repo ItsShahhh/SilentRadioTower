@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "CrosshairWidget.generated.h"
 
+enum ESettingMenus : int;
 class UWorldSystem;
 class ULineTraceComponent;
 /**
@@ -32,5 +33,8 @@ private:
 	
 	UFUNCTION()
 	void UpdateCrosshair(bool bIsInteracting) const;
+	
+	UFUNCTION()
+	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	
 };

@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class UWorldSystem;
 class UOptionMenuWidget;
 enum ESettingMenus : int;
 class UPauseMenuWidget;
@@ -26,6 +27,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 /**
  *  A basic first person character
  */
+
 UCLASS(abstract)
 class AHorrorGameCharacter : public ACharacter, public IPlayerMode
 {
@@ -93,19 +95,19 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TObjectPtr<UDialogueWidget> DialogueWidget;
+	TSubclassOf<UDialogueWidget> DialogueWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TObjectPtr<UQuestWidget> QuestWidget;
+	TSubclassOf<UQuestWidget> QuestWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TObjectPtr<UCrosshairWidget> CrosshairWidget;
+	TSubclassOf<UCrosshairWidget> CrosshairWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TObjectPtr<UPauseMenuWidget> PauseMenuWidget;
+	TSubclassOf<UPauseMenuWidget> PauseMenuWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
+	TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
 	float CameraSpeed = 5.0f;
@@ -116,21 +118,39 @@ private:
 	
 	FInputModeGameOnly GameMode;
 	FInputModeUIOnly UIMode;
-	FInputModeGameAndUI GameandUIMode;
 	FTimerHandle DialogueTimerHandle;
 	
 	bool bDialogueMode = false;
 	bool bIsPauseMenuToggle = false;
 	bool bIsOptionMenuToggle = false;
 	
+	float BasedSensitivity = 1.0f;
+	
+	ESettingMenus CurrentSettingMenu;
+	
+	UPROPERTY()
+	TObjectPtr<UWorldSystem> WorldSystem;
+	
+	UPROPERTY()
+	TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
+	UPROPERTY()
+	TObjectPtr<UDialogueWidget> DialogueWidget;
+	UPROPERTY()
+	TObjectPtr<UQuestWidget> QuestWidget;
+	UPROPERTY()
+	TObjectPtr<UCrosshairWidget> CrosshairWidget;
+	UPROPERTY()
+	TObjectPtr<UPauseMenuWidget> PauseMenuWidget;
+	
 	UFUNCTION()
 	void DisableDialogueMode() const;
 	UFUNCTION()
-	void PauseMenuOptions(const ESettingMenus SettingMenus);
+	void ChangeSensitivity(const float NewSensValue);
+	UFUNCTION()
+	void GameModeState() const;
 	void Interact();
 	void TogglePauseMenu();
-	void GameModeState() const;
-	void GameandUIModeState() const;
+	void UIModeState() const;
 	
 public:
 	AHorrorGameCharacter();

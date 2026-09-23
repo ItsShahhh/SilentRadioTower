@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "QuestWidget.generated.h"
 
+enum ESettingMenus : int;
 struct FQuestData;
 class UWorldSystem;
 /**
@@ -32,5 +33,7 @@ private:
 	
 	UFUNCTION()
 	void InitializeQuest(const FQuestData& QuestData) const;
+	UFUNCTION()
+	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	
 };

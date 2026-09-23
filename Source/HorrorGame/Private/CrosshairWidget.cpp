@@ -4,6 +4,7 @@
 #include "CrosshairWidget.h"
 
 #include "DialogueWidget.h"
+#include "PauseMenuWidget.h"
 #include "WorldSystem.h"
 
 void UCrosshairWidget::NativeConstruct()
@@ -15,6 +16,24 @@ void UCrosshairWidget::NativeConstruct()
 	if (WorldSystem)
 	{
 		WorldSystem->OnUpdateCrosshair.AddDynamic(this, &UCrosshairWidget::UpdateCrosshair);
+		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UCrosshairWidget::ToggleWidget);
+	}
+}
+
+void UCrosshairWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
+{
+	switch (CurrentSettingMenus)
+	{
+		case PauseMenu:
+		SetVisibility(ESlateVisibility::Collapsed);
+		break;
+		
+		case Resume:
+		SetVisibility(ESlateVisibility::Visible);
+		break;
+		
+		default:
+		break;
 	}
 }
 
@@ -29,3 +48,5 @@ void UCrosshairWidget::UpdateCrosshair(const bool bIsInteracting) const
 		InnerCircle->SetOpacity(0.0f);
 	}
 }
+
+

@@ -12,12 +12,19 @@
 /**
  * 
  */
+
+enum ESettingMenus : int;
+class UWorldSystem;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateSensitivity, float, NewSensitivityValue);
+
 UCLASS()
 class HORRORGAME_API UOptionMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
 protected:
+	virtual void NativeConstruct() override;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MouseSensitivityText;
 	
@@ -34,6 +41,12 @@ protected:
 	TObjectPtr<UTextBlock> MusicAudioText;
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> BackButtonText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USlider> MouseSensitivitySlider;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USlider> MusicAudioSlider;
 	
 	UPROPERTY(meta = (BindWidget))
@@ -44,5 +57,24 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> FullscreenButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> BackButton;
+	
+private:
+	UFUNCTION()
+	void OnSensitivityChanged(const float NewSensitivityValue) const;
+	
+	UPROPERTY()
+	TObjectPtr<UWorldSystem> WorldSystem;
+	
+	UFUNCTION()
+	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
+	
+	UFUNCTION()
+	void BackToMenu();
+	
+public:
+	FOnUpdateSensitivity OnUpdateSensitivity;
 	
 };

@@ -3,6 +3,7 @@
 
 #include "QuestWidget.h"
 
+#include "PauseMenuWidget.h"
 #include "QuestData.h"
 #include "WorldSystem.h"
 
@@ -15,6 +16,26 @@ void UQuestWidget::NativeConstruct()
 	if (WorldSystem)
 	{
 		WorldSystem->OnUpdateQuest.AddDynamic(this, &UQuestWidget::InitializeQuest);
+		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UQuestWidget::ToggleWidget);
+	}
+}
+
+void UQuestWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus) 
+{
+	switch (CurrentSettingMenus)
+	{
+		case PauseMenu:
+		case BackMenu:
+		SetVisibility(ESlateVisibility::Visible);
+		break;
+		
+		case Options:
+		case Resume:
+		SetVisibility(ESlateVisibility::Collapsed);
+		break;
+		
+		default:
+		break;
 	}
 }
 

@@ -8,12 +8,14 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "WorldSystem.generated.h"
 
+enum ESettingMenus : int;
 class UGameSettings;
 struct FQuestData;
 struct FDialogueLine;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleSettingWidget, const ESettingMenus, SettingEnum);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
@@ -57,6 +59,7 @@ public:
 	FOnUpdateQuest OnUpdateQuest;
 	FOnUpdateCrosshair OnUpdateCrosshair;
 	FOnCompletedQuest OnCompletedQuest;
+	FOnToggleSettingWidget OnToggleSettingWidget;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
