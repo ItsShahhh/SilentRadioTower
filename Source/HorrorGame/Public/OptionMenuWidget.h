@@ -13,7 +13,7 @@
  * 
  */
 
-enum ESettingMenus : int;
+enum class ESettingMenus : uint8;
 class UWorldSystem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateSensitivity, float, NewSensitivityValue);
 

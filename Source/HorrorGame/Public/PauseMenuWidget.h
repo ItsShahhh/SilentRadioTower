@@ -11,19 +11,8 @@
  * 
  */
 
+enum class ESettingMenus : uint8;
 class UWorldSystem;
-
-UENUM()
-enum ESettingMenus
-{
-	PauseMenu UMETA(DisplayName = "Pause Menu"),
-	Resume UMETA(DisplayName = "Resume"),
-	Options UMETA(DisplayName = "Options"),
-	MainMenu UMETA(DisplayName = "Main Menu"),
-	BackMenu UMETA(DisplayName = "Back Menu"),
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchToGameMode);
 
 UCLASS()
 class HORRORGAME_API UPauseMenuWidget : public UUserWidget
@@ -53,21 +42,16 @@ protected:
 	
 private:
 	UFUNCTION()
-	void OnClickResumeButton();
+	void OnClickResumeButton() const;
 	UFUNCTION()
-	void OnClickOptionsButton();
+	void OnClickOptionsButton() const;
 	UFUNCTION()
-	void OnClickMainMenuButton();
+	void OnClickMainMenuButton() const;
 	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
-	ESettingMenus SettingMenus;
-	
 	UFUNCTION()
 	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
-	
-public:
-	FOnSwitchToGameMode OnSwitchToGameMode;
 	
 };

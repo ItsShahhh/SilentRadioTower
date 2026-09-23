@@ -2,9 +2,8 @@
 
 
 #include "CrosshairWidget.h"
-
 #include "DialogueWidget.h"
-#include "PauseMenuWidget.h"
+#include "SettingMenuStates.h"
 #include "WorldSystem.h"
 
 void UCrosshairWidget::NativeConstruct()
@@ -24,11 +23,12 @@ void UCrosshairWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 {
 	switch (CurrentSettingMenus)
 	{
-		case PauseMenu:
+		case ESettingMenus::PauseMenu:
+		case ESettingMenus::Dialogue:
 		SetVisibility(ESlateVisibility::Collapsed);
 		break;
 		
-		case Resume:
+		case ESettingMenus::Resume:
 		SetVisibility(ESlateVisibility::Visible);
 		break;
 		

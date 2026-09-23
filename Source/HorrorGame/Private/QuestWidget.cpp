@@ -5,6 +5,7 @@
 
 #include "PauseMenuWidget.h"
 #include "QuestData.h"
+#include "SettingMenuStates.h"
 #include "WorldSystem.h"
 
 void UQuestWidget::NativeConstruct()
@@ -24,13 +25,13 @@ void UQuestWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 {
 	switch (CurrentSettingMenus)
 	{
-		case PauseMenu:
-		case BackMenu:
+		case ESettingMenus::PauseMenu:
+		case ESettingMenus::BackMenu:
 		SetVisibility(ESlateVisibility::Visible);
 		break;
 		
-		case Options:
-		case Resume:
+		case ESettingMenus::Options:
+		case ESettingMenus::Resume:
 		SetVisibility(ESlateVisibility::Collapsed);
 		break;
 		

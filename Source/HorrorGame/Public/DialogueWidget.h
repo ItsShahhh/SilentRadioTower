@@ -8,8 +8,6 @@
 #include "Components/TextBlock.h"
 #include "DialogueWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableDialogue);
-
 class UWorldSystem;
 struct FDialogueLine;
 /**
@@ -55,8 +53,6 @@ private:
 	void CloseDialogue();
 	
 public:
-	FOnDisableDialogue OnDisableDialogue;
-	
 	UFUNCTION()
 	void InitializeDialogue(const FDialogueLine& DialogueData);
 	

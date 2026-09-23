@@ -7,7 +7,7 @@
 #include "Components/TextBlock.h"
 #include "QuestWidget.generated.h"
 
-enum ESettingMenus : int;
+enum class ESettingMenus : uint8;
 struct FQuestData;
 class UWorldSystem;
 /**

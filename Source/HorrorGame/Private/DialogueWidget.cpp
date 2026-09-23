@@ -2,8 +2,8 @@
 
 
 #include "DialogueWidget.h"
-
 #include "DialogueData.h"
+#include "SettingMenuStates.h"
 #include "WorldSystem.h"
 
 void UDialogueWidget::NativeConstruct()
@@ -29,20 +29,10 @@ void UDialogueWidget::InitializeDialogue(const FDialogueLine& DialogueData)
 	//Enable Dialogue Widget Because We Make It Collapsed Inside Player Character When Added
 	SetVisibility(ESlateVisibility::Visible);
 	
-	if (APlayerController* PC = GetOwningPlayer())
+	if (WorldSystem)
 	{
-		FInputModeUIOnly InputMode;
-        
-		// TakeWidget() grabs the underlying C++ Slate code and forces the lock
-		InputMode.SetWidgetToFocus(TakeWidget());
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        
-		PC->SetInputMode(InputMode);
-		PC->SetShowMouseCursor(true);
+		WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Dialogue);
 	}
-
-	// 3. Force the physical widget to accept keyboard/mouse focus
-	SetFocus();
 	
 	//Set All The Dialogue Data To This Everytime Starting The Dialogue
 	NPCNameTextBlock->SetText(DialogueData.SpeakerName);
@@ -108,6 +98,12 @@ FReply UDialogueWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, con
 		}
 		else
 		{
+			if (WorldSystem)
+			{
+				WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Resume);
+				WorldSystem->OnSwitchGameMode.Broadcast();
+			}
+			
 			CloseDialogue();
 			return FReply::Handled().ClearUserFocus();
 		}
@@ -119,7 +115,4 @@ void UDialogueWidget::CloseDialogue()
 {
 	//Set Dialogue To Visible Because It's Collapsed Inside Player Character
 	SetVisibility(ESlateVisibility::Collapsed);
-	
-	//Broadcast To void Function Inside Player Character
-	OnDisableDialogue.Broadcast();
 }

@@ -10,7 +10,6 @@
 
 class UWorldSystem;
 class UOptionMenuWidget;
-enum ESettingMenus : int;
 class UPauseMenuWidget;
 class UCrosshairWidget;
 class UQuestWidget;
@@ -126,8 +125,6 @@ private:
 	
 	float BasedSensitivity = 1.0f;
 	
-	ESettingMenus CurrentSettingMenu;
-	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
@@ -143,14 +140,13 @@ private:
 	TObjectPtr<UPauseMenuWidget> PauseMenuWidget;
 	
 	UFUNCTION()
-	void DisableDialogueMode() const;
-	UFUNCTION()
 	void ChangeSensitivity(const float NewSensValue);
 	UFUNCTION()
 	void GameModeState() const;
+	UFUNCTION()
+	void UIModeState() const;
 	void Interact();
 	void TogglePauseMenu();
-	void UIModeState() const;
 	
 public:
 	AHorrorGameCharacter();

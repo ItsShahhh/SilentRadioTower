@@ -2,7 +2,7 @@
 
 
 #include "OptionMenuWidget.h"
-
+#include "SettingMenuStates.h"
 #include "PauseMenuWidget.h"
 #include "WorldSystem.h"
 
@@ -32,11 +32,11 @@ void UOptionMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 {
 	switch (CurrentSettingMenus)
 	{
-		case Options:
+		case ESettingMenus::Options:
 		SetVisibility(ESlateVisibility::Visible);
 		break;
 		
-		case BackMenu:
+		case ESettingMenus::BackMenu:
 		SetVisibility(ESlateVisibility::Collapsed);
 		break;
 		
@@ -54,8 +54,7 @@ void UOptionMenuWidget::BackToMenu()
 {
 	if (!IsValid(WorldSystem)) return;
 	
-	WorldSystem->OnToggleSettingWidget.Broadcast(BackMenu);
+	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::BackMenu);
 	
 	SetVisibility(ESlateVisibility::Collapsed);
-	FReply::Handled().ClearUserFocus();
 }

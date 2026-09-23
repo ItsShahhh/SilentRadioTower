@@ -18,7 +18,7 @@
 #include "WorldSystem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/StaticMeshActor.h"
-
+#include "SettingMenuStates.h"
 
 AHorrorGameCharacter::AHorrorGameCharacter()
 {
@@ -63,6 +63,12 @@ void AHorrorGameCharacter::BeginPlay()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
+	if (WorldSystem)
+	{
+		WorldSystem->OnSwitchGameMode.AddDynamic(this, &AHorrorGameCharacter::GameModeState);
+		WorldSystem->OnSwitchUIMode.AddDynamic(this, &AHorrorGameCharacter::UIModeState);
+	}
+	
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		DialogueWidget = CreateWidget<UDialogueWidget>(PC, DialogueWidgetClass);
@@ -71,7 +77,6 @@ void AHorrorGameCharacter::BeginPlay()
 		{
 			DialogueWidget->AddToViewport();
 			DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
-			DialogueWidget->OnDisableDialogue.AddDynamic(this, &AHorrorGameCharacter::DisableDialogueMode);
 		}
 		
 		QuestWidget = CreateWidget<UQuestWidget>(PC, QuestWidgetClass);
@@ -95,7 +100,6 @@ void AHorrorGameCharacter::BeginPlay()
 		{
 			PauseMenuWidget->AddToViewport();
 			PauseMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
-			PauseMenuWidget->OnSwitchToGameMode.AddDynamic(this, &AHorrorGameCharacter::GameModeState);
 		}
 		
 		OptionMenuWidget = CreateWidget<UOptionMenuWidget>(PC, OptionMenuWidgetClass);
@@ -224,6 +228,8 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 {
 	if (!IsValid(LookAtActor)) return;
 	
+	UIModeState();
+	
 	//Create Empty Vector
 	FVector TargetLookAt;
 	
@@ -241,17 +247,14 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 	bDialogueMode = true;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AHorrorGameCharacter::TogglePauseMenu()
 {
 	if (!IsValid(WorldSystem)) return;
 	
-	CurrentSettingMenu = PauseMenu;
-	WorldSystem->OnToggleSettingWidget.Broadcast(CurrentSettingMenu);
-}
-
-void AHorrorGameCharacter::DisableDialogueMode() const
-{
-	GameModeState();
+	UIModeState();
+	
+	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::PauseMenu);
 }
 
 void AHorrorGameCharacter::GameModeState() const

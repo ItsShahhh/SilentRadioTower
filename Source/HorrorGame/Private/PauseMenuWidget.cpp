@@ -2,8 +2,8 @@
 
 
 #include "PauseMenuWidget.h"
-
 #include "WorldSystem.h"
+#include "SettingMenuStates.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -36,29 +36,13 @@ void UPauseMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 {
 	switch (CurrentSettingMenus)
 	{
-		case PauseMenu:
-		case BackMenu:
+		case ESettingMenus::PauseMenu:
+		case ESettingMenus::BackMenu:
 		SetVisibility(ESlateVisibility::Visible);
-		
-		if (APlayerController* PC = GetOwningPlayer())
-		{
-			FInputModeUIOnly InputMode;
-        
-			// TakeWidget() grabs the underlying C++ Slate code and forces the lock
-			InputMode.SetWidgetToFocus(TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        
-			PC->SetInputMode(InputMode);
-			PC->SetShowMouseCursor(true);
-		}
-
-		// 3. Force the physical widget to accept keyboard/mouse focus
-		SetFocus();
-		
 		break;
 		
-		case Resume:
-		case Options:
+		case ESettingMenus::Resume:
+		case ESettingMenus::Options:
 		SetVisibility(ESlateVisibility::Collapsed);
 		break;
 		
@@ -67,28 +51,22 @@ void UPauseMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 	}
 }
 
-void UPauseMenuWidget::OnClickResumeButton()
+void UPauseMenuWidget::OnClickResumeButton() const
 {
 	if (!IsValid(WorldSystem)) return;
 	
-	SettingMenus = Resume;
-	WorldSystem->OnToggleSettingWidget.Broadcast(SettingMenus);
-	
-	FReply::Handled().ClearUserFocus();
-	FSlateApplication::Get().SetAllUserFocusToGameViewport();
-	
-	OnSwitchToGameMode.Broadcast();
+	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Resume);
+	WorldSystem->OnSwitchGameMode.Broadcast();
 }
 
-void UPauseMenuWidget::OnClickOptionsButton()
+void UPauseMenuWidget::OnClickOptionsButton() const
 {
 	if (!IsValid(WorldSystem)) return;
 	
-	SettingMenus = Options;
-	WorldSystem->OnToggleSettingWidget.Broadcast(SettingMenus);
+	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Options);
 }
 
-void UPauseMenuWidget::OnClickMainMenuButton()
+void UPauseMenuWidget::OnClickMainMenuButton() const
 {
-	SettingMenus = MainMenu;
+	//SettingMenus = MainMenu;
 }

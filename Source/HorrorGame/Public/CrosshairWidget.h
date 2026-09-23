@@ -7,7 +7,7 @@
 #include "Components/Image.h"
 #include "CrosshairWidget.generated.h"
 
-enum ESettingMenus : int;
+enum class ESettingMenus : uint8;
 class UWorldSystem;
 class ULineTraceComponent;
 /**
