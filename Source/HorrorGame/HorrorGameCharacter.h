@@ -8,6 +8,9 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class UGameplayMenuWidget;
+class UAudioMenuWidget;
+class UControlMenuWidget;
 class UWorldSystem;
 class UOptionMenuWidget;
 class UPauseMenuWidget;

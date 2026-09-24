@@ -11,4 +11,7 @@ enum class ESettingMenus : uint8
 	MainMenu UMETA(DisplayName = "Main Menu"),
 	BackMenu UMETA(DisplayName = "Back Menu"),
 	Dialogue UMETA(DisplayName = "Dialogue"),
+	Controls UMETA(DisplayName = "Controls"),
+	Audio UMETA(DisplayName = "Audio"),
+	Gameplay UMETA(DisplayName = "Gameplay"),
 };

@@ -2,6 +2,8 @@
 
 
 #include "OptionMenuWidget.h"
+
+#include "ControlMenuWidget.h"
 #include "SettingMenuStates.h"
 #include "PauseMenuWidget.h"
 #include "WorldSystem.h"
@@ -17,14 +19,39 @@ void UOptionMenuWidget::NativeConstruct()
 		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UOptionMenuWidget::ToggleWidget);
 	}
 	
-	if (MouseSensitivitySlider)
+	if (ControlMenuButton)
 	{
-		MouseSensitivitySlider->OnValueChanged.AddDynamic(this, &UOptionMenuWidget::OnSensitivityChanged);
+		ControlMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::ControlMenu);
+	}
+	
+	if (AudioMenuButton)
+	{
+		AudioMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::AudioMenu);
+	}
+	
+	if (GameplayMenuButton)
+	{
+		GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
 	}
 	
 	if (BackButton)
 	{
-		BackButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::BackToMenu);
+		BackButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::BackMenu);
+	}
+	
+	if (ControlMenuUserCreated)
+	{
+		ControlMenuUserCreated->MouseSensitivitySlider->OnValueChanged.AddDynamic(this, &UOptionMenuWidget::SetMouseSensitivity);
+	}
+	
+	if (AudioMenuUserCreated)
+	{
+		//Put The On Value Change For Audio
+	}
+	
+	if (GameplayMenuUserCreated)
+	{
+		//Put The Gameplay Stuff Here
 	}
 }
 
@@ -45,16 +72,32 @@ void UOptionMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 	}
 }
 
-void UOptionMenuWidget::OnSensitivityChanged(const float NewSensitivityValue) const
+void UOptionMenuWidget::ControlMenu() const
 {
-	OnUpdateSensitivity.Broadcast(NewSensitivityValue);
+	if (!MenuSwitch) return;
+	MenuSwitch->SetActiveWidgetIndex(0);
 }
 
-void UOptionMenuWidget::BackToMenu()
+void UOptionMenuWidget::AudioMenu() const
+{
+	if (!MenuSwitch) return;
+	MenuSwitch->SetActiveWidgetIndex(1);
+}
+
+void UOptionMenuWidget::GameplayMenu() const
+{
+	if (!MenuSwitch) return;
+	MenuSwitch->SetActiveWidgetIndex(2);
+}
+
+void UOptionMenuWidget::BackMenu() const
 {
 	if (!IsValid(WorldSystem)) return;
-	
 	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::BackMenu);
-	
-	SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
+{
+	if (!ControlMenuUserCreated) return;
+	ControlMenuUserCreated->OnUpdateNewSens.Broadcast(NewMouseSens);
 }

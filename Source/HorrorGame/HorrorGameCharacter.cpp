@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HorrorGameCharacter.h"
-
+#include "ControlMenuWidget.h"
 #include "CrosshairWidget.h"
 #include "DialogueWidget.h"
 #include "Camera/CameraComponent.h"
@@ -108,7 +108,7 @@ void AHorrorGameCharacter::BeginPlay()
 		{
 			OptionMenuWidget->AddToViewport();
 			OptionMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
-			OptionMenuWidget->OnUpdateSensitivity.AddDynamic(this, &AHorrorGameCharacter::ChangeSensitivity);
+			OptionMenuWidget->ControlMenuUserCreated->OnUpdateNewSens.AddDynamic(this, &AHorrorGameCharacter::ChangeSensitivity);
 		}
 	}
 }

@@ -5,17 +5,19 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "Components/Slider.h"
 #include "Components/Button.h"
+#include "Components/WidgetSwitcher.h"
 #include "OptionMenuWidget.generated.h"
 
 /**
  * 
  */
 
+class UGameplayMenuWidget;
+class UAudioMenuWidget;
+class UControlMenuWidget;
 enum class ESettingMenus : uint8;
 class UWorldSystem;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateSensitivity, float, NewSensitivityValue);
 
 UCLASS()
 class HORRORGAME_API UOptionMenuWidget : public UUserWidget
@@ -26,55 +28,57 @@ protected:
 	virtual void NativeConstruct() override;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MouseSensitivityText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> FullscreenText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MainAudioText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> SoundEffectAudioText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MusicAudioText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> BackButtonText;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USlider> MouseSensitivitySlider;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USlider> MusicAudioSlider;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USlider> SoundEffectAudioSlider;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USlider> MainAudioSlider;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> FullscreenButton;
+	TObjectPtr<UWidgetSwitcher> MenuSwitch;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> BackButton;
 	
-private:
-	UFUNCTION()
-	void OnSensitivityChanged(const float NewSensitivityValue) const;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ControlMenuButton;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> AudioMenuButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> GameplayMenuButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ButtonText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ControlMenuText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> AudioMenuText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> GameplayMenuText;
+
+private:
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
 	UFUNCTION()
 	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
-	
 	UFUNCTION()
-	void BackToMenu();
+	void ControlMenu() const;
+	UFUNCTION()
+	void AudioMenu() const;
+	UFUNCTION()
+	void GameplayMenu() const;
+	UFUNCTION()
+	void BackMenu() const;
+	UFUNCTION()
+	void SetMouseSensitivity(const float NewMouseSens) const;
 	
 public:
-	FOnUpdateSensitivity OnUpdateSensitivity;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UControlMenuWidget> ControlMenuUserCreated;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UAudioMenuWidget> AudioMenuUserCreated;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UGameplayMenuWidget> GameplayMenuUserCreated;
 	
 };
