@@ -26,5 +26,8 @@ public:
 	TObjectPtr<UTextBlock> MouseSensitivityText;
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MouseSensitivityValue;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USlider> MouseSensitivitySlider;
 };

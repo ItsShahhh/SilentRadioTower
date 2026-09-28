@@ -247,6 +247,20 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 	bDialogueMode = true;
 }
 
+void AHorrorGameCharacter::ToggleCrosshair_Implementation(const bool bToggleCrosshair)
+{
+	if (!IsValid(CrosshairWidget)) return;
+	
+	if (bToggleCrosshair)
+	{
+		CrosshairWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CrosshairWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst
 void AHorrorGameCharacter::TogglePauseMenu()
 {

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InteractableInterface.h"
 #include "PlayerMode.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
@@ -31,7 +32,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
  */
 
 UCLASS(abstract)
-class AHorrorGameCharacter : public ACharacter, public IPlayerMode
+class AHorrorGameCharacter : public ACharacter, public IPlayerMode, public IInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -161,10 +162,8 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	virtual void BeginPlay() override;
-	
 	virtual void Tick(float DeltaSeconds) override;
-	
 	virtual void LookAtActor_Implementation(const AActor* LookAtActor) override;
-	
+	virtual void ToggleCrosshair_Implementation(const bool bToggleCrosshair) override;
 };
 

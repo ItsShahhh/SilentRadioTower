@@ -37,22 +37,12 @@ protected:
 	TObjectPtr<UInputAction> MouseRotateAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BlendSpeed = 5.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float KnobRotationSpeed = 5.0f;
 	
 private:
-	UPROPERTY()
-	TObjectPtr<APlayerController> PC;
-	
-	UPROPERTY()
-	TObjectPtr<APawn> PlayerRef;
-	
 	void RotateKnob(const FInputActionValue& Value);
 	
 	float MouseKnobRotation = 0.0f;
-	
 	float KnobRotationObjective = 0.0f;
 
 public:	

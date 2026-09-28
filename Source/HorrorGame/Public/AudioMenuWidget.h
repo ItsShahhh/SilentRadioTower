@@ -29,4 +29,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MusicAudioText;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MasterAudioValue;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MusicAudioValue;
+	
 };

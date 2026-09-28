@@ -2,7 +2,6 @@
 
 
 #include "OptionMenuWidget.h"
-
 #include "ControlMenuWidget.h"
 #include "SettingMenuStates.h"
 #include "PauseMenuWidget.h"
@@ -100,4 +99,11 @@ void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
 {
 	if (!ControlMenuUserCreated) return;
 	ControlMenuUserCreated->OnUpdateNewSens.Broadcast(NewMouseSens);
+	
+	FNumberFormattingOptions NumberFormattingOptions;
+	NumberFormattingOptions.MinimumFractionalDigits = 2;
+	NumberFormattingOptions.MaximumFractionalDigits = 2;
+	
+	const FText MouseSensValue = FText::AsNumber(NewMouseSens, &NumberFormattingOptions);
+	ControlMenuUserCreated->MouseSensitivityValue->SetText(MouseSensValue);
 }

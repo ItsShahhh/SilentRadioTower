@@ -37,20 +37,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float ValveRotationSpeed = 5.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BlendSpeed = 5.0f;
-	
 private:
-	UPROPERTY()
-	TObjectPtr<APawn> Pawn;
-	
-	UPROPERTY()
-	TObjectPtr<APlayerController> PC;
-	
 	float ValveRotation;
 	
 	void RotateValve(const FInputActionValue& Value);
-	void ExitFromGenerator();
 
 public:	
 	// Called every frame

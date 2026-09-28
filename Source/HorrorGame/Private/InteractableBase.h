@@ -30,8 +30,22 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BlendSpeed = 1.0f;
+	
+private:
+	UPROPERTY()
+	TObjectPtr<AActor> InteractingActor;
+	UPROPERTY()
+	TObjectPtr<APawn> Pawn;
+	UPROPERTY()
+	TObjectPtr<APlayerController> PC;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void Interactable_Implementation(AActor* InteractActor) override;
+	virtual void ExitFromInteractable();
+	
 };

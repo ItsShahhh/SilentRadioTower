@@ -38,26 +38,12 @@ void AGenerator::Interactable_Implementation(AActor* InteractActor)
 	
 	if (!IsValid(InteractActor)) return;
 	
-	Pawn = Cast<APawn>(InteractActor);
-	if (Pawn)
+	//Now that EnableInput created the component, we cast it and bind.
+	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
 	{
-		PC = Cast<APlayerController>(Pawn->GetController());
-		if (PC)
-		{
-			PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
-			
-			//SWAP INPUT (Freeze Player, Wake Up Machine)
-			Pawn->DisableInput(PC);
-			this->EnableInput(PC); // This creates this->InputComponent!
-	
-			//Now that EnableInput created the component, we cast it and bind.
-			if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
-			{
-				// Clear previous binds so the knob doesn't spin twice as fast if you interact twice
-				EnhancedInput->ClearActionEventBindings();
-				EnhancedInput->BindAction(ValveRotationAction, ETriggerEvent::Triggered, this, &AGenerator::RotateValve);
-			}
-		}
+		// Clear previous binds so the knob doesn't spin twice as fast if you interact twice
+		EnhancedInput->ClearActionEventBindings();
+		EnhancedInput->BindAction(ValveRotationAction, ETriggerEvent::Triggered, this, &AGenerator::RotateValve);
 	}
 }
 
@@ -78,16 +64,6 @@ void AGenerator::RotateValve(const FInputActionValue& Value)
 		{
 			WorldSystem->OnUpdateLight.Broadcast();
 		}
-		
-		ExitFromGenerator();
+		ExitFromInteractable();
 	}
 }
-
-void AGenerator::ExitFromGenerator()
-{
-	PC->SetViewTargetWithBlend(Pawn, BlendSpeed, VTBlend_Linear);
-	
-	Pawn->EnableInput(PC);
-	this->DisableInput(PC);
-}
-

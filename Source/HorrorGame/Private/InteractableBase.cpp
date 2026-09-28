@@ -32,6 +32,54 @@ void AInteractableBase::BeginPlay()
 void AInteractableBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+
+void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
+{
+	if (!IsValid(InteractActor)) return;
+	
+	InteractingActor = InteractActor;
+	
+	InteractingActor->SetActorHiddenInGame(true);
+	
+	if (!Pawn && !PC)
+	{
+		Pawn = Cast<APawn>(InteractActor);
+		if (Pawn)
+		{
+			PC = Cast<APlayerController>(Pawn->GetController());
+		}
+	}
+    
+	if (!IsValid(PC)) return;
+
+	//Change Camera
+	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
+
+	//SWAP INPUT (Freeze Player, Wake Up Machine)
+	Pawn->DisableInput(PC);
+	this->EnableInput(PC);
+	
+	if (InteractActor->Implements<UInteractableInterface>())
+	{
+		Execute_ToggleCrosshair(InteractActor, false);
+	}
+}
+
+void AInteractableBase::ExitFromInteractable()
+{
+	if (!InteractingActor) return;
+	
+	InteractingActor->SetActorHiddenInGame(false);
+	
+	PC->SetViewTargetWithBlend(Pawn, BlendSpeed, VTBlend_Linear);
+	this->DisableInput(PC);
+	Pawn->EnableInput(PC);
+	
+	if (InteractingActor->Implements<UInteractableInterface>())
+	{
+		Execute_ToggleCrosshair(InteractingActor, true);
+	}
 }
 

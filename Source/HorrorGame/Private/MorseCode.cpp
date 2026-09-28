@@ -30,8 +30,6 @@ void AMorseCode::Tick(float DeltaTime)
 
 void AMorseCode::Interactable_Implementation(AActor* InteractActor)
 {
-	Super::Interactable_Implementation(InteractActor);
-	
 	if (!IsValid(MorseLight)) return;
 	
 	//Randomize Number For Each Interact

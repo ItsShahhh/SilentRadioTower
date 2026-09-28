@@ -28,5 +28,8 @@ public:
 	void Interactable(AActor* InteractActor);
 	
 	UFUNCTION(BlueprintNativeEvent)
+	void ToggleCrosshair(const bool bToggleCrosshair);
+	
+	UFUNCTION(BlueprintNativeEvent)
 	FGameplayTag GetGameplayTag();
 };

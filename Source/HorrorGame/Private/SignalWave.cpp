@@ -42,24 +42,6 @@ void ASignalWave::Interactable_Implementation(AActor* InteractActor)
 	Super::Interactable_Implementation(InteractActor);
 	
 	if (!IsValid(InteractActor)) return;
-    
-	if (!PlayerRef && !PC)
-	{
-		PlayerRef = Cast<APawn>(InteractActor);
-		if (PlayerRef)
-		{
-			PC = Cast<APlayerController>(PlayerRef->GetController());
-		}
-	}
-    
-	if (!IsValid(PC)) return;
-
-	//Change Camera
-	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
-
-	//SWAP INPUT (Freeze Player, Wake Up Machine)
-	PlayerRef->DisableInput(PC);
-	this->EnableInput(PC); // This creates this->InputComponent!
 	
 	//Now that EnableInput created the component, we cast it and bind.
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
@@ -100,12 +82,10 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 	if (ClampKnobRotation == KnobRotationObjective)
 	{
 		//Set All Back To Default
-		PC->SetViewTargetWithBlend(PlayerRef, BlendSpeed, VTBlend_Linear);
-		this->DisableInput(PC);
-		PlayerRef->EnableInput(PC);
 		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		MouseKnobRotation = 0.0f;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("Correct"));
+		
+		ExitFromInteractable();
 		
 		if (WorldSystem)
 		{
