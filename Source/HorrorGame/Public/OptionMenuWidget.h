@@ -57,6 +57,8 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
+	UPROPERTY()
+	TObjectPtr<UGameUserSettings> UserSettings;
 	
 	UFUNCTION()
 	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
@@ -70,6 +72,15 @@ private:
 	void BackMenu() const;
 	UFUNCTION()
 	void SetMouseSensitivity(const float NewMouseSens) const;
+	UFUNCTION()
+	void ToggleChromaticAbberation(const bool OnChecked) const;
+	UFUNCTION()
+	void ToggleVHS(const bool OnChecked) const;
+	UFUNCTION()
+	void ToggleVSync(const bool OnChecked) const;
+	UFUNCTION()
+	void ToggleFullscreen(const bool OnChecked) const;
+	
 	
 public:
 	UPROPERTY(meta = (BindWidget))

@@ -3,15 +3,18 @@
 
 #include "OptionMenuWidget.h"
 #include "ControlMenuWidget.h"
+#include "GameplayMenuWidget.h"
 #include "SettingMenuStates.h"
-#include "PauseMenuWidget.h"
 #include "WorldSystem.h"
+#include "Kismet/KismetMaterialLibrary.h"
+#include "GameFramework/GameUserSettings.h"
 
 void UOptionMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	UserSettings = GEngine->GetGameUserSettings();
 	
 	if (WorldSystem)
 	{
@@ -31,6 +34,10 @@ void UOptionMenuWidget::NativeConstruct()
 	if (GameplayMenuButton)
 	{
 		GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
+		GameplayMenuUserCreated->ChromaticAbberationCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleChromaticAbberation);
+		GameplayMenuUserCreated->VHSCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVHS);
+		GameplayMenuUserCreated->VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVSync);
+		GameplayMenuUserCreated->FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFullscreen);
 	}
 	
 	if (BackButton)
@@ -106,4 +113,42 @@ void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
 	
 	const FText MouseSensValue = FText::AsNumber(NewMouseSens, &NumberFormattingOptions);
 	ControlMenuUserCreated->MouseSensitivityValue->SetText(MouseSensValue);
+}
+
+void UOptionMenuWidget::ToggleChromaticAbberation(const bool OnChecked) const
+{
+	if (!IsValid(GameplayMenuUserCreated)) return;
+	if (!GameplayMenuUserCreated->ParameterCollection) return;
+	
+	const float CA_Toggle = OnChecked ? 1.0f : 0.0f;
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GameplayMenuUserCreated->ParameterCollection, "CA_Toggle", CA_Toggle);
+}
+
+void UOptionMenuWidget::ToggleVHS(const bool OnChecked) const
+{
+	if (!IsValid(GameplayMenuUserCreated)) return;
+	if (!GameplayMenuUserCreated->ParameterCollection) return;
+	
+	const float VHS_Toggle = OnChecked ? 1.0f : 0.0f;
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GameplayMenuUserCreated->ParameterCollection, "VHS_Toggle", VHS_Toggle);
+}
+
+void UOptionMenuWidget::ToggleVSync(const bool OnChecked) const
+{
+	if (!UserSettings) return;
+	UserSettings->SetVSyncEnabled(OnChecked);
+}
+
+void UOptionMenuWidget::ToggleFullscreen(const bool OnChecked) const
+{
+	if (!UserSettings) return;
+	
+	if (!OnChecked)
+	{
+		UserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
+	}
+	else
+	{
+		UserSettings->SetFullscreenMode(EWindowMode::Fullscreen);
+	}
 }
