@@ -30,6 +30,12 @@ public:
 	TObjectPtr<UCheckBox> VSyncCheckBox;
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCheckBox> FilmGrainCheckBox;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCheckBox> MotionBlurCheckBox;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> FullscreenText;
 	
 	UPROPERTY(meta = (BindWidget))
@@ -41,7 +47,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> VSyncText;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> FilmGrainText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MotionBlurText;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialParameterCollection> ParameterCollection;
-	
 };

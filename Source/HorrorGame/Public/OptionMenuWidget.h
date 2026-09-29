@@ -13,6 +13,7 @@
  * 
  */
 
+class UCameraComponent;
 class UGameplayMenuWidget;
 class UAudioMenuWidget;
 class UControlMenuWidget;
@@ -59,6 +60,8 @@ private:
 	TObjectPtr<UWorldSystem> WorldSystem;
 	UPROPERTY()
 	TObjectPtr<UGameUserSettings> UserSettings;
+	UPROPERTY()
+	TObjectPtr<UCameraComponent> CameraComp;
 	
 	UFUNCTION()
 	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
@@ -80,7 +83,10 @@ private:
 	void ToggleVSync(const bool OnChecked) const;
 	UFUNCTION()
 	void ToggleFullscreen(const bool OnChecked) const;
-	
+	UFUNCTION()
+	void ToggleFilmGrain(const bool OnChecked) const;
+	UFUNCTION()
+	void ToggleMotionBlur(const bool OnChecked) const;
 	
 public:
 	UPROPERTY(meta = (BindWidget))

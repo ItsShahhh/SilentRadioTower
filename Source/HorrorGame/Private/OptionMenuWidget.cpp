@@ -6,8 +6,11 @@
 #include "GameplayMenuWidget.h"
 #include "SettingMenuStates.h"
 #include "WorldSystem.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Kismet/GameplayStatics.h"
 
 void UOptionMenuWidget::NativeConstruct()
 {
@@ -15,6 +18,11 @@ void UOptionMenuWidget::NativeConstruct()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	UserSettings = GEngine->GetGameUserSettings();
+	 
+	if (const ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+	{
+		CameraComp = Player->FindComponentByClass<UCameraComponent>();
+	}
 	
 	if (WorldSystem)
 	{
@@ -34,10 +42,24 @@ void UOptionMenuWidget::NativeConstruct()
 	if (GameplayMenuButton)
 	{
 		GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
+		
+		//Chromatic Abberation
 		GameplayMenuUserCreated->ChromaticAbberationCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleChromaticAbberation);
+		
+		//VHS
 		GameplayMenuUserCreated->VHSCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVHS);
+		
+		//VSync
 		GameplayMenuUserCreated->VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVSync);
+		
+		//Fullscreen
 		GameplayMenuUserCreated->FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFullscreen);
+		
+		//Film Grain
+		GameplayMenuUserCreated->FilmGrainCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFilmGrain);
+		
+		//Motion Blur
+		GameplayMenuUserCreated->MotionBlurCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleMotionBlur);
 	}
 	
 	if (BackButton)
@@ -151,4 +173,16 @@ void UOptionMenuWidget::ToggleFullscreen(const bool OnChecked) const
 	{
 		UserSettings->SetFullscreenMode(EWindowMode::Fullscreen);
 	}
+}
+
+void UOptionMenuWidget::ToggleFilmGrain(const bool OnChecked) const
+{
+	if (!IsValid(CameraComp)) return;
+	CameraComp->PostProcessSettings.FilmGrainIntensity = OnChecked ? 1.0f : 0.0f;
+}
+
+void UOptionMenuWidget::ToggleMotionBlur(const bool OnChecked) const
+{
+	if (!IsValid(CameraComp)) return;
+	CameraComp->PostProcessSettings.MotionBlurAmount = OnChecked ? 0.5f : 0.0f;
 }
