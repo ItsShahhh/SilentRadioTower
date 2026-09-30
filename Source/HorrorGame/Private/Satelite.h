@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "InteractableBase.h"
 #include "GameFramework/Actor.h"
-#include "Generator.generated.h"
+#include "Satelite.generated.h"
 
 class UCameraComponent;
 struct FInputActionValue;
@@ -13,13 +13,13 @@ class UInputAction;
 class UWorldSystem;
 
 UCLASS()
-class AGenerator : public AInteractableBase
+class ASatelite : public AInteractableBase
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AGenerator();
+	ASatelite();
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,6 +39,7 @@ protected:
 	
 private:
 	float ValveRotation;
+	float SatelliteRotObj;
 	
 	void RotateValve(const FInputActionValue& Value);
 

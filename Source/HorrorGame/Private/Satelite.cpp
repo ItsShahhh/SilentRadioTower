@@ -1,38 +1,38 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Generator.h"
+#include "Satelite.h"
 
 #include "EnhancedInputComponent.h"
 #include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 
 // Sets default values
-AGenerator::AGenerator()
+ASatelite::ASatelite()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
 	ValveMesh = CreateDefaultSubobject<UStaticMeshComponent>("ValveMesh");
-	ValveMesh->SetupAttachment(MainMesh);
+	ValveMesh->SetupAttachment(RootComp);
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComp->SetupAttachment(MainMesh);
+	CameraComp->SetupAttachment(RootComp);
 }
 
 // Called when the game starts or when spawned
-void AGenerator::BeginPlay()
+void ASatelite::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void AGenerator::Tick(float DeltaTime)
+void ASatelite::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AGenerator::Interactable_Implementation(AActor* InteractActor)
+void ASatelite::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
 	
@@ -43,22 +43,32 @@ void AGenerator::Interactable_Implementation(AActor* InteractActor)
 	{
 		// Clear previous binds so the knob doesn't spin twice as fast if you interact twice
 		EnhancedInput->ClearActionEventBindings();
-		EnhancedInput->BindAction(ValveRotationAction, ETriggerEvent::Triggered, this, &AGenerator::RotateValve);
+		EnhancedInput->BindAction(ValveRotationAction, ETriggerEvent::Triggered, this, &ASatelite::RotateValve);
 	}
+	
+	const float RandSatelliteRot = FMath::RandRange(-180.0f, 180.0f);
+	SatelliteRotObj = FMath::TruncToFloat(RandSatelliteRot);
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), SatelliteRotObj));
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AGenerator::RotateValve(const FInputActionValue& Value)
+void ASatelite::RotateValve(const FInputActionValue& Value)
 {
 	if (!IsValid(ValveMesh)) return;
 	
+	//Added and Multiply Rotation Value With Speed
+	//Then Capped The Valve Rotation Using The Rotation Value That We Multiply and Added, Capped To Only -180 and 180
 	const float RotationValue = Value.Get<float>();
 	ValveRotation += RotationValue * ValveRotationSpeed;
-	const float ClampValveRotation = FMath::Clamp(ValveRotation, -180.0f, 180.0f);
+	ValveRotation = FMath::Clamp(ValveRotation, -180.0f, 180.0f);
 	
-	ValveMesh->SetRelativeRotation(FRotator(0.0f, 0.0f , ClampValveRotation));
+	//Multiply Valve Rotation By Rotation Value
+	ValveMesh->SetRelativeRotation(FRotator(0.0f, 0.0f , ValveRotation));
 	
-	if (ValveMesh->GetComponentRotation().Equals(FRotator(0.0f, 0.0f, 180.0f), 0.1f))
+	//Multiply The Current Rotation Satelite By Valve Rotation
+	MainMesh->SetRelativeRotation(FRotator(0.0f, ValveRotation, 0.0f));
+	
+	if (ValveRotation == SatelliteRotObj)
 	{
 		if (IsValid(WorldSystem))
 		{
