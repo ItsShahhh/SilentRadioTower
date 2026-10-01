@@ -70,10 +70,6 @@ void ASatelite::RotateValve(const FInputActionValue& Value)
 	
 	if (ValveRotation == SatelliteRotObj)
 	{
-		if (IsValid(WorldSystem))
-		{
-			WorldSystem->OnUpdateLight.Broadcast();
-		}
 		ExitFromInteractable();
 	}
 }
