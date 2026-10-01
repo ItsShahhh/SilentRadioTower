@@ -53,6 +53,7 @@ void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 	}
     
 	if (!IsValid(PC)) return;
+	if (!IsValid(Pawn)) return;
 
 	//Change Camera
 	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
@@ -70,6 +71,8 @@ void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 void AInteractableBase::ExitFromInteractable()
 {
 	if (!InteractingActor) return;
+	if (!IsValid(Pawn)) return;
+	if (!IsValid(PC)) return;
 	
 	InteractingActor->SetActorHiddenInGame(false);
 	
