@@ -2,6 +2,8 @@
 
 
 #include "LightBase.h"
+
+#include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "Components/SpotLightComponent.h"
 
@@ -30,8 +32,8 @@ void ALightBase::BeginPlay()
 	
 	if (WorldSystem)
 	{
-		WorldSystem->OnUpdateLight.AddDynamic(this, &ALightBase::EnableLight);
-		WorldSystem->OnDisableLight.AddDynamic(this, &ALightBase::DisableLight);
+		WorldSystem->OnUpdateLight.AddDynamic(this, &ALightBase::ToggleLight);
+		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ALightBase::RandEventPower);
 	}
 }
 
@@ -41,14 +43,17 @@ void ALightBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ALightBase::EnableLight() const
+void ALightBase::ToggleLight(const bool ToggleLight) const
 {
 	if (!IsValid(LightComp)) return;
-	LightComp->SetVisibility(true);
+	LightComp->SetVisibility(ToggleLight);
 }
 
-void ALightBase::DisableLight() const
+void ALightBase::RandEventPower(const ERandomEvent SelRandEvent) const
 {
-	if (!IsValid(LightComp)) return;
-	LightComp->SetVisibility(false);
+	if (SelRandEvent == ERandomEvent::Generator)
+	{
+		LightComp->SetVisibility(false);
+	}
 }
+

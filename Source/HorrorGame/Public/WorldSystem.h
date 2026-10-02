@@ -13,10 +13,9 @@ class UGameSettings;
 struct FQuestData;
 struct FDialogueLine;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateLight);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchGameMode);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchUIMode);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateLight, const bool, ToggleLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleSettingWidget, const ESettingMenus, SettingEnum);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateRandomEvent, const ERandomEvent, RandomEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
@@ -58,7 +57,6 @@ private:
 public:
 	FOnUpdateLight OnUpdateLight;
 	FOnEnableDialogue OnProcessDialogue;
-	FOnDisableLight OnDisableLight;
 	FOnUpdateQuest OnUpdateQuest;
 	FOnUpdateCrosshair OnUpdateCrosshair;
 	FOnCompletedQuest OnCompletedQuest;
@@ -75,4 +73,5 @@ public:
 	void StartQuest(const FGameplayTag QuestTag);
 	void CompletedQuest();
 	void InitiateRandomEvent() const;
+	void ActivateRandomEvent() const;
 };

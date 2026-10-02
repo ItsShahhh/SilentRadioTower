@@ -7,7 +7,7 @@
 
 enum class ERandomEvent : uint8;
 
-UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Quest & Dialogue Settings"))
+UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "World Subsystem Settings"))
 class HORRORGAME_API UGameSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -22,5 +22,8 @@ public:
 	
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
 	TMap<int32, ERandomEvent> RandomEventsMap;
+	
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
+	float RandEventTimer = 120.0f;
 	
 };

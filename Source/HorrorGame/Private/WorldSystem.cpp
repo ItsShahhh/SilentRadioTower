@@ -6,6 +6,7 @@
 #include "DialogueData.h"
 #include "GameSettings.h"
 #include "QuestData.h"
+#include "RandomEvent.h"
 
 void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -22,6 +23,7 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 		//Only Load The Global Table Once
 		LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
 	}
+	InitiateRandomEvent();
 }
 
 void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
@@ -80,11 +82,24 @@ void UWorldSystem::CompletedQuest()
 
 void UWorldSystem::InitiateRandomEvent() const
 {
-	if (!GameSettings) return;
+	if (!IsValid(GameSettings)) return;
+	
+	FTimerHandle RandEventTimer;
+	GetWorld()->GetTimerManager().SetTimer(RandEventTimer, [this]
+	{
+		ActivateRandomEvent();
+	},
+	GameSettings->RandEventTimer,
+	true
+	);
+}
+
+void UWorldSystem::ActivateRandomEvent() const
+{
+	if (!IsValid(GameSettings)) return;
 	
 	const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
 	const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
-	
 	const ERandomEvent SelRandomEvent = GameSettings->RandomEventsMap[RandomEvent];
 	
 	OnUpdateRandomEvent.Broadcast(SelRandomEvent);

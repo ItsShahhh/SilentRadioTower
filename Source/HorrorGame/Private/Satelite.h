@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Satelite.generated.h"
 
+enum class ERandomEvent : uint8;
 class UCameraComponent;
 struct FInputActionValue;
 class UInputAction;
@@ -42,6 +43,9 @@ private:
 	float SatelliteRotObj;
 	
 	void RotateValve(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void RandSatelliteRot(const ERandomEvent SelRanEvents);
 
 public:	
 	// Called every frame

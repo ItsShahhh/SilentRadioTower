@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LightBase.generated.h"
 
+enum class ERandomEvent : uint8;
 class USpotLightComponent;
 class UWorldSystem;
 
@@ -36,10 +37,10 @@ private:
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
 	UFUNCTION()
-	void EnableLight() const;
+	void ToggleLight(const bool ToggleLight) const;
 	
 	UFUNCTION()
-	void DisableLight() const;
+	void RandEventPower(const ERandomEvent SelRandEvent) const;
 
 public:	
 	// Called every frame

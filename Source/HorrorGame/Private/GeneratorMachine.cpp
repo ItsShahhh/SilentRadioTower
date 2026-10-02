@@ -4,6 +4,7 @@
 #include "GeneratorMachine.h"
 
 #include "EnhancedInputComponent.h"
+#include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 
@@ -25,6 +26,16 @@ AGeneratorMachine::AGeneratorMachine()
 	SmallButton3->SetupAttachment(MainMesh);
 }
 
+void AGeneratorMachine::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (WorldSystem)
+	{
+		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AGeneratorMachine::RandGeneratorPower);
+	}
+}
+
 void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
@@ -32,6 +43,10 @@ void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 	if (PC)
 	{
 		PC->bShowMouseCursor = true;
+		
+		const FInputModeGameAndUI GameAndUIMode;
+		PC->SetInputMode(GameAndUIMode);
+		
 	}
 	
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
@@ -49,6 +64,7 @@ void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 void AGeneratorMachine::OnMouseClicked()
 {
 	if (!IsValid(PC)) return;
+	if (!bCanPressed) return;
 	
 	FVector MouseLoc;
 	FVector MouseDir;
@@ -74,9 +90,15 @@ void AGeneratorMachine::OnMouseClicked()
 				
 				if (PressedButtons.Num() == 4)
 				{
+					//Reset TSet Array
+					PressedButtons.Empty();
+					
+					//Butonn Will Be Disabled After Done Pressing The Button
+					bCanPressed = false;
+					
 					if (IsValid(WorldSystem))
 					{
-						WorldSystem->OnUpdateLight.Broadcast();
+						WorldSystem->OnUpdateLight.Broadcast(true);
 					}
 					
 					if (PC)
@@ -92,5 +114,13 @@ void AGeneratorMachine::OnMouseClicked()
 				}
 			}
 		}
+	}
+}
+
+void AGeneratorMachine::RandGeneratorPower(const ERandomEvent SelRanEvents)
+{
+	if (SelRanEvents == ERandomEvent::Generator)
+	{
+		bCanPressed = true;
 	}
 }

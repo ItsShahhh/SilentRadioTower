@@ -6,6 +6,7 @@
 #include "InteractableBase.h"
 #include "GeneratorMachine.generated.h"
 
+enum class ERandomEvent : uint8;
 class UCameraComponent;
 class UInputAction;
 /**
@@ -20,6 +21,8 @@ public:
 	AGeneratorMachine();
 	
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> CameraComp;
 	
@@ -42,10 +45,15 @@ protected:
 	float LineTraceRange = 200.0f;
 	
 private:
+	UPROPERTY()
+	TSet<TObjectPtr<UPrimitiveComponent>> PressedButtons;
+	
+	bool bCanPressed = false;
+	
 	void OnMouseClicked();
 	
-	UPROPERTY()
-	TSet<UPrimitiveComponent*> PressedButtons;
+	UFUNCTION()
+	void RandGeneratorPower(const ERandomEvent SelRanEvents);
 	
 public:
 	virtual void Interactable_Implementation(AActor* InteractActor) override;

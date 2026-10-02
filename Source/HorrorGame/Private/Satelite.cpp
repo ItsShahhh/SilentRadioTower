@@ -4,6 +4,7 @@
 #include "Satelite.h"
 
 #include "EnhancedInputComponent.h"
+#include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 
@@ -24,6 +25,11 @@ ASatelite::ASatelite()
 void ASatelite::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (WorldSystem)
+	{
+		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ASatelite::RandSatelliteRot);
+	}
 }
 
 // Called every frame
@@ -45,10 +51,6 @@ void ASatelite::Interactable_Implementation(AActor* InteractActor)
 		EnhancedInput->ClearActionEventBindings();
 		EnhancedInput->BindAction(ValveRotationAction, ETriggerEvent::Triggered, this, &ASatelite::RotateValve);
 	}
-	
-	const float RandSatelliteRot = FMath::RandRange(-180.0f, 180.0f);
-	SatelliteRotObj = FMath::TruncToFloat(RandSatelliteRot);
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), SatelliteRotObj));
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -72,4 +74,15 @@ void ASatelite::RotateValve(const FInputActionValue& Value)
 	{
 		ExitFromInteractable();
 	}
+}
+
+void ASatelite::RandSatelliteRot(const ERandomEvent SelRanEvents)
+{
+	if (SelRanEvents != ERandomEvent::Satllite) return;
+	
+	const float RandSatelliteRot = FMath::RandRange(-180.0f, 180.0f);
+	SatelliteRotObj = FMath::TruncToFloat(RandSatelliteRot);
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, FString::Printf(TEXT("%f"), SatelliteRotObj));
+	
+	MainMesh->SetRelativeRotation(FRotator(0.0f, SatelliteRotObj, 0.0f));
 }
