@@ -5,6 +5,8 @@
 #include "Engine/DataTable.h"
 #include "GameSettings.generated.h"
 
+enum class ERandomEvent : uint8;
+
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Quest & Dialogue Settings"))
 class HORRORGAME_API UGameSettings : public UDeveloperSettings
 {
@@ -17,5 +19,8 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
 	TSoftObjectPtr<UDataTable> GlobalDialogueTable;
+	
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
+	TMap<int32, ERandomEvent> RandomEventsMap;
 	
 };

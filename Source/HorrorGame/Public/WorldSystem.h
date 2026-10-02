@@ -8,6 +8,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "WorldSystem.generated.h"
 
+enum class ERandomEvent : uint8;
 class UGameSettings;
 struct FQuestData;
 struct FDialogueLine;
@@ -17,6 +18,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchGameMode);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchUIMode);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleSettingWidget, const ESettingMenus, SettingEnum);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateRandomEvent, const ERandomEvent, RandomEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
@@ -63,6 +65,7 @@ public:
 	FOnToggleSettingWidget OnToggleSettingWidget;
 	FOnSwitchGameMode OnSwitchGameMode;
 	FOnSwitchUIMode OnSwitchUIMode;
+	FOnUpdateRandomEvent OnUpdateRandomEvent;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
@@ -71,4 +74,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartQuest(const FGameplayTag QuestTag);
 	void CompletedQuest();
+	void InitiateRandomEvent() const;
 };

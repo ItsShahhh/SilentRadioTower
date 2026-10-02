@@ -77,3 +77,15 @@ void UWorldSystem::CompletedQuest()
 		StartQuest(ActiveQuest.NextActiveQuest);
 	}
 }
+
+void UWorldSystem::InitiateRandomEvent() const
+{
+	if (!GameSettings) return;
+	
+	const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
+	const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
+	
+	const ERandomEvent SelRandomEvent = GameSettings->RandomEventsMap[RandomEvent];
+	
+	OnUpdateRandomEvent.Broadcast(SelRandomEvent);
+}
