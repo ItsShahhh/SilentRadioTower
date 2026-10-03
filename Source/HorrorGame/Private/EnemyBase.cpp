@@ -2,13 +2,13 @@
 
 
 #include "EnemyBase.h"
-
 #include "AIController.h"
 #include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/TargetPoint.h"
 
 
 // Sets default values
@@ -38,6 +38,7 @@ void AEnemyBase::BeginPlay()
 	if (WorldSystem)
 	{
 		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AEnemyBase::MoveBehindPlayer);
+		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AEnemyBase::MoveToHidingSpot);
 	}
 }
 
@@ -61,6 +62,11 @@ void AEnemyBase::Tick(float DeltaTime)
 			if (BBComp)
 			{
 				BBComp->SetValueAsBool("bIsSpotted", true);
+			}
+			
+			if (WorldSystem)
+			{
+				WorldSystem->InitiateRandomEvent();
 			}
 			
 			SetActorTickEnabled(false);
@@ -104,5 +110,30 @@ void AEnemyBase::MoveBehindPlayer(const ERandomEvent SelRandEvent)
 		10.0f,
 		false
 		);
+	}
+}
+
+void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
+{
+	if (HidingSpotLocations.IsEmpty()) return;
+	
+	if (SelRandEvent == ERandomEvent::HidingJumpscare)
+	{
+		const FVector EnemyLoc = GetActorLocation();
+		float ClosestDist = MAX_FLT;
+		FVector ClosestLoc;
+		
+		for (const ATargetPoint* HidingLocation : HidingSpotLocations)
+		{
+			const FVector HidingLoc = HidingLocation->GetActorLocation();
+			const float ClosestSquared = FVector::DistSquared(EnemyLoc, HidingLoc);
+			
+			if (ClosestSquared < ClosestDist)
+			{
+				ClosestDist = ClosestSquared;
+				ClosestLoc = HidingLoc;
+			}
+		}
+		SetActorLocation(ClosestLoc);
 	}
 }

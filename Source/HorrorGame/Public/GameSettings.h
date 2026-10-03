@@ -24,6 +24,6 @@ public:
 	TMap<int32, ERandomEvent> RandomEventsMap;
 	
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
-	float RandEventTimer = 120.0f;
+	float RandEventTimer = 300.0f;
 	
 };

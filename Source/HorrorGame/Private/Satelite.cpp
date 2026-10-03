@@ -72,6 +72,11 @@ void ASatelite::RotateValve(const FInputActionValue& Value)
 	
 	if (ValveRotation == SatelliteRotObj)
 	{
+		if (WorldSystem)
+		{
+			WorldSystem->InitiateRandomEvent();
+		}
+		
 		ExitFromInteractable();
 	}
 }

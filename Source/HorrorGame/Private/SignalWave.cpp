@@ -85,11 +85,11 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		MouseKnobRotation = 0.0f;
 		
-		ExitFromInteractable();
-		
 		if (WorldSystem)
 		{
-			WorldSystem->CompletedQuest();
+			WorldSystem->InitiateRandomEvent();
 		}
+		
+		ExitFromInteractable();
 	}
 }

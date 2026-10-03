@@ -7,6 +7,7 @@
 #include "EnemyBase.generated.h"
 
 class UBlackboardComponent;
+class ATargetPoint;
 class AAIController;
 enum class ERandomEvent : uint8;
 class UWorldSystem;
@@ -26,6 +27,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BehindPlayerRange = 50.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TObjectPtr<ATargetPoint>> HidingSpotLocations;
 
 private:
 	UPROPERTY()
@@ -42,6 +46,9 @@ private:
 	
 	UFUNCTION()
 	void MoveBehindPlayer(const ERandomEvent SelRandEvent);
+	
+	UFUNCTION()
+	void MoveToHidingSpot(const ERandomEvent SelRandEvent);
 	
 public:
 	// Called every frame

@@ -90,6 +90,11 @@ void AGeneratorMachine::OnMouseClicked()
 				
 				if (PressedButtons.Num() == 4)
 				{
+					if (WorldSystem)
+					{
+						WorldSystem->InitiateRandomEvent();
+					}
+					
 					//Reset TSet Array
 					PressedButtons.Empty();
 					
