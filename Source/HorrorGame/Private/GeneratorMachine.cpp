@@ -44,9 +44,9 @@ void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 	{
 		PC->bShowMouseCursor = true;
 		
+		//Set Input To Game And UI, So When Interact Again It Will Be Able To Click
 		const FInputModeGameAndUI GameAndUIMode;
 		PC->SetInputMode(GameAndUIMode);
-		
 	}
 	
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))

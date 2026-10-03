@@ -73,5 +73,4 @@ public:
 	void StartQuest(const FGameplayTag QuestTag);
 	void CompletedQuest();
 	void InitiateRandomEvent() const;
-	void ActivateRandomEvent() const;
 };

@@ -87,20 +87,13 @@ void UWorldSystem::InitiateRandomEvent() const
 	FTimerHandle RandEventTimer;
 	GetWorld()->GetTimerManager().SetTimer(RandEventTimer, [this]
 	{
-		ActivateRandomEvent();
+		const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
+		const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
+		const ERandomEvent SelRandomEvent = GameSettings->RandomEventsMap[RandomEvent];
+	
+		OnUpdateRandomEvent.Broadcast(ERandomEvent::BehindJumpscare);
 	},
 	GameSettings->RandEventTimer,
-	true
+	false
 	);
-}
-
-void UWorldSystem::ActivateRandomEvent() const
-{
-	if (!IsValid(GameSettings)) return;
-	
-	const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
-	const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
-	const ERandomEvent SelRandomEvent = GameSettings->RandomEventsMap[RandomEvent];
-	
-	OnUpdateRandomEvent.Broadcast(SelRandomEvent);
 }
