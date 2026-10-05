@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/TargetPoint.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -102,16 +103,20 @@ void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
 				ClosestDist = ClosestSquared;
 				ClosestLoc = HidingLoc;
 			}
-			SetActorLocation(ClosestLoc);
-			
-			FTimerHandle SpottedTimerHandle;
-			GetWorldTimerManager().SetTimer(SpottedTimerHandle, [this]
-			{
-				BBComp->SetValueAsBool("bIsSneaked", true);
-			},
-			CaughtTimer,
-			false
-			);
 		}
+		
+		const FRotator TurnToPlayer = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerLoc);
+		
+		SetActorLocation(ClosestLoc);
+		SetActorRotation(TurnToPlayer);
+		
+		FTimerHandle SpottedTimerHandle;
+		GetWorldTimerManager().SetTimer(SpottedTimerHandle, [this]
+		{
+			BBComp->SetValueAsBool("bIsSneaked", true);
+		},
+		CaughtTimer,
+		false
+		);
 	}
 }
