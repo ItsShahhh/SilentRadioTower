@@ -89,9 +89,12 @@ void UWorldSystem::InitiateRandomEvent() const
 	{
 		const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
 		const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
-		const ERandomEvent SelRandomEvent = GameSettings->RandomEventsMap[RandomEvent];
+		const ERandomEvent* SelRandomEvent = GameSettings->RandomEventsMap.Find(RandomEvent);
 	
-		OnUpdateRandomEvent.Broadcast(ERandomEvent::HidingJumpscare);
+		if (SelRandomEvent)
+		{
+			OnUpdateRandomEvent.Broadcast(ERandomEvent::HidingJumpscare);
+		}
 	},
 	GameSettings->RandEventTimer,
 	false

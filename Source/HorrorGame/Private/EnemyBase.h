@@ -29,6 +29,9 @@ protected:
 	float BehindPlayerRange = 50.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CaughtTimer = 10.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TObjectPtr<ATargetPoint>> HidingSpotLocations;
 
 private:
@@ -43,9 +46,6 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
-	
-	UFUNCTION()
-	void MoveBehindPlayer(const ERandomEvent SelRandEvent);
 	
 	UFUNCTION()
 	void MoveToHidingSpot(const ERandomEvent SelRandEvent);

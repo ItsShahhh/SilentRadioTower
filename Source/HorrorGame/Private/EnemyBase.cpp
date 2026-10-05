@@ -6,10 +6,8 @@
 #include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Engine/TargetPoint.h"
-
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -37,7 +35,6 @@ void AEnemyBase::BeginPlay()
 	
 	if (WorldSystem)
 	{
-		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AEnemyBase::MoveBehindPlayer);
 		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AEnemyBase::MoveToHidingSpot);
 	}
 }
@@ -81,59 +78,40 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AEnemyBase::MoveBehindPlayer(const ERandomEvent SelRandEvent)
-{
-	if (SelRandEvent == ERandomEvent::BehindJumpscare) 
-	{
-		const FVector PlayerLoc = Player->GetActorLocation();
-		const FVector PlayerFor = -Player->GetActorForwardVector();
-		const FVector FinalPlayerLoc = PlayerLoc + (PlayerFor * BehindPlayerRange);
-		const FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerLoc);
-		
-		SetActorLocation(FinalPlayerLoc);
-		SetActorRotation(PlayerRot);
-		
-		SetActorTickEnabled(true);
-		
-		if (BBComp)
-		{
-			BBComp->SetValueAsBool("bIsSpotted", false);
-		}
-		
-		//Disable Set Actor After 10 Seconds
-		//This Is To Make Sure Even When Player Got Jumpscare The Tick Is Off
-		FTimerHandle TimerHandle;
-		GetWorldTimerManager().SetTimer(TimerHandle, [this]
-		{
-			SetActorTickEnabled(false);
-		},
-		10.0f,
-		false
-		);
-	}
-}
-
 void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
 {
 	if (HidingSpotLocations.IsEmpty()) return;
+	if (!IsValid(Player)) return;
 	
 	if (SelRandEvent == ERandomEvent::HidingJumpscare)
 	{
-		const FVector EnemyLoc = GetActorLocation();
+		//Enable Tick For Looking At Enemy
+		SetActorTickEnabled(true);
+		
+		const FVector PlayerLoc = Player->GetActorLocation();
 		float ClosestDist = MAX_FLT;
 		FVector ClosestLoc;
 		
-		for (const ATargetPoint* HidingLocation : HidingSpotLocations)
+		for (const ATargetPoint* TargetPoint : HidingSpotLocations)
 		{
-			const FVector HidingLoc = HidingLocation->GetActorLocation();
-			const float ClosestSquared = FVector::DistSquared(EnemyLoc, HidingLoc);
+			const FVector HidingLoc = TargetPoint->GetActorLocation();
+			const float ClosestSquared = FVector::DistSquared(PlayerLoc, HidingLoc);
 			
 			if (ClosestSquared < ClosestDist)
 			{
 				ClosestDist = ClosestSquared;
 				ClosestLoc = HidingLoc;
 			}
+			SetActorLocation(ClosestLoc);
+			
+			FTimerHandle SpottedTimerHandle;
+			GetWorldTimerManager().SetTimer(SpottedTimerHandle, [this]
+			{
+				BBComp->SetValueAsBool("bIsSneaked", true);
+			},
+			CaughtTimer,
+			false
+			);
 		}
-		SetActorLocation(ClosestLoc);
 	}
 }
