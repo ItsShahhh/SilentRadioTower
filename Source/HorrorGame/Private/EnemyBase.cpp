@@ -83,6 +83,7 @@ void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
 {
 	if (HidingSpotLocations.IsEmpty()) return;
 	if (!IsValid(Player)) return;
+	if (!IsValid(BBComp)) return;
 	
 	if (SelRandEvent == ERandomEvent::HidingJumpscare)
 	{
@@ -110,13 +111,7 @@ void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
 		SetActorLocation(ClosestLoc);
 		SetActorRotation(TurnToPlayer);
 		
-		FTimerHandle SpottedTimerHandle;
-		GetWorldTimerManager().SetTimer(SpottedTimerHandle, [this]
-		{
-			BBComp->SetValueAsBool("bIsSneaked", true);
-		},
-		CaughtTimer,
-		false
-		);
+		//When This Function Get Called It Started Timer On Behavior Tree Task
+		BBComp->SetValueAsBool("bSneakTimer", true);
 	}
 }
