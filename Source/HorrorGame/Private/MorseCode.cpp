@@ -7,7 +7,6 @@
 #include "GeneratorMachine.h"
 #include "MorseCodeNumberWidget.h"
 #include "Camera/CameraComponent.h"
-#include "Components/Button.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
@@ -207,7 +206,6 @@ void AMorseCode::OnMouseClicked()
 				{
 					CurNumBut1 = MinVal;
 				}
-				
 				MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(CurNumBut1));
 			}
 			else if (PrimComp == Button2)
@@ -219,7 +217,6 @@ void AMorseCode::OnMouseClicked()
 				{
 					CurNumBut2 = MinVal;
 				}
-				
 				MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(CurNumBut2));
 			}
 			else if (PrimComp == Button3)
@@ -231,9 +228,31 @@ void AMorseCode::OnMouseClicked()
 				{
 					CurNumBut3 = MinVal;
 				}
-				
 				MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CurNumBut3));
 			}
+			
 		}
+	}
+}
+
+void AMorseCode::CheckCorrectCode()
+{
+	const int32 Code1 = CodeObjective[0];
+	const int32 Code2 = CodeObjective[1];
+	const int32 Code3 = CodeObjective[2];
+	
+	if (Code1 == CurNumBut1 && Code2 == CurNumBut2 && Code3 == CurNumBut3)
+	{
+		//Reset Current Number To 0
+		CurNumBut1 = 0;
+		CurNumBut2 = 0;
+		CurNumBut3 = 0;
+		
+		//Reset Morse Code Widget Text To 0
+		MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(0));
+		MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(0));
+		MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(0));
+		
+		ExitFromInteractable();
 	}
 }
