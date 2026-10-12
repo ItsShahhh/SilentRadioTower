@@ -231,6 +231,8 @@ void AMorseCode::OnMouseClicked()
 				MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CurNumBut3));
 			}
 			
+			//Check Correct Code Everytime Click Button
+			CheckCorrectCode();
 		}
 	}
 }
