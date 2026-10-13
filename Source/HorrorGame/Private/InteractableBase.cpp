@@ -34,7 +34,6 @@ void AInteractableBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-
 void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 {
 	if (!IsValid(InteractActor)) return;
@@ -66,6 +65,17 @@ void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 	{
 		Execute_ToggleCrosshair(InteractActor, false);
 	}
+	
+	GetWorldTimerManager().SetTimer(ObjectiveTimerHandle, [this]
+	{
+		if (WorldSystem)
+		{
+			WorldSystem->InitiateRandomEvent();
+		}
+	},
+	10.0f,
+	false
+	);
 }
 
 void AInteractableBase::ExitFromInteractable()

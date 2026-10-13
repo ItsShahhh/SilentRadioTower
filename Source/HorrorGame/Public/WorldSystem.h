@@ -47,6 +47,8 @@ private:
 	FQuestData* FoundQuestData;
 	FActiveQuest ActiveQuest;
 	
+	bool bAlreadyInitiated = false;
+	
 	UPROPERTY()
 	const UGameSettings* GameSettings;
 	UPROPERTY()
@@ -72,5 +74,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartQuest(const FGameplayTag QuestTag);
 	void CompletedQuest();
-	void InitiateRandomEvent() const;
+	void InitiateRandomEvent();
 };

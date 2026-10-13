@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "GeneratorMachine.h"
 #include "MorseCodeNumberWidget.h"
+#include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"

@@ -14,17 +14,12 @@ class HORRORGAME_API UBTTask_StartSneakTimer : public UBTTask_BlueprintBase
 {
 	GENERATED_BODY()
 	
-	UBTTask_StartSneakTimer();
-	
 protected:
 	UPROPERTY(EditAnywhere)
 	float StartSneakTimer = 0.0f;
 	
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector SneakBoolKey;
-	
-	UPROPERTY(EditAnywhere)
-	FBlackboardKeySelector SneakTimerBoolKey;
 	
 private:
 	FTimerHandle SneakTimerHandle;

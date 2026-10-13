@@ -43,6 +43,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<APawn> Pawn;
 	
+	FTimerHandle ObjectiveTimerHandle;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

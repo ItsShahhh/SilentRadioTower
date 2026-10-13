@@ -2,7 +2,6 @@
 
 
 #include "WorldSystem.h"
-
 #include "DialogueData.h"
 #include "GameSettings.h"
 #include "QuestData.h"
@@ -23,7 +22,6 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 		//Only Load The Global Table Once
 		LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
 	}
-	InitiateRandomEvent();
 }
 
 void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
@@ -80,23 +78,32 @@ void UWorldSystem::CompletedQuest()
 	}
 }
 
-void UWorldSystem::InitiateRandomEvent() const
+void UWorldSystem::InitiateRandomEvent()
 {
 	if (!IsValid(GameSettings)) return;
 	
-	FTimerHandle RandEventTimer;
-	GetWorld()->GetTimerManager().SetTimer(RandEventTimer, [this]
+	//This Bool Avoid The Random Event Get Called Twice
+	if (!bAlreadyInitiated)
 	{
-		const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
-		const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
-		const ERandomEvent* SelRandomEvent = GameSettings->RandomEventsMap.Find(RandomEvent);
-	
-		if (SelRandomEvent)
+		//Set Already Initiated True
+		bAlreadyInitiated = true;
+		
+		FTimerHandle RandEventTimer;
+		GetWorld()->GetTimerManager().SetTimer(RandEventTimer, [this]
 		{
-			OnUpdateRandomEvent.Broadcast(ERandomEvent::HidingJumpscare);
-		}
-	},
-	GameSettings->RandEventTimer,
-	false
-	);
+			const int32 TotalRandomEvent =  GameSettings->RandomEventsMap.Num();
+			const int32 RandomEvent = FMath::RandRange(1, TotalRandomEvent);
+		
+			if (const ERandomEvent* SelRandEvent = GameSettings->RandomEventsMap.Find(RandomEvent))
+			{
+				OnUpdateRandomEvent.Broadcast(*SelRandEvent);
+				
+				//Set Already Initiated False
+				bAlreadyInitiated = false;
+			}
+		},
+		GameSettings->RandEventTimer,
+		false
+		);	
+	}
 }

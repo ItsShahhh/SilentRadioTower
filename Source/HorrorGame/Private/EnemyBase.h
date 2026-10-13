@@ -44,9 +44,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
-	UFUNCTION()
-	void MoveToHidingSpot(const ERandomEvent SelRandEvent);
-	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

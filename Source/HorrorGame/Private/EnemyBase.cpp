@@ -3,12 +3,9 @@
 
 #include "EnemyBase.h"
 #include "AIController.h"
-#include "RandomEvent.h"
 #include "WorldSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Engine/TargetPoint.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -22,8 +19,6 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetActorTickEnabled(false);
-	
 	Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
@@ -32,11 +27,6 @@ void AEnemyBase::BeginPlay()
 	if (IsValid(AIController))
 	{
 		BBComp = AIController->GetBlackboardComponent(); 
-	}
-	
-	if (WorldSystem)
-	{
-		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AEnemyBase::MoveToHidingSpot);
 	}
 }
 
@@ -61,14 +51,6 @@ void AEnemyBase::Tick(float DeltaTime)
 			{
 				BBComp->SetValueAsBool("bIsSpotted", true);
 			}
-			
-			if (WorldSystem)
-			{
-				WorldSystem->InitiateRandomEvent();
-			}
-			
-			SetActorTickEnabled(false);
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Called")));
 		}
 	}
 }
@@ -77,41 +59,4 @@ void AEnemyBase::Tick(float DeltaTime)
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void AEnemyBase::MoveToHidingSpot(const ERandomEvent SelRandEvent)
-{
-	if (HidingSpotLocations.IsEmpty()) return;
-	if (!IsValid(Player)) return;
-	if (!IsValid(BBComp)) return;
-	
-	if (SelRandEvent == ERandomEvent::HidingJumpscare)
-	{
-		//Enable Tick For Looking At Enemy
-		SetActorTickEnabled(true);
-		
-		const FVector PlayerLoc = Player->GetActorLocation();
-		float ClosestDist = MAX_FLT;
-		FVector ClosestLoc;
-		
-		for (const ATargetPoint* TargetPoint : HidingSpotLocations)
-		{
-			const FVector HidingLoc = TargetPoint->GetActorLocation();
-			const float ClosestSquared = FVector::DistSquared(PlayerLoc, HidingLoc);
-			
-			if (ClosestSquared < ClosestDist)
-			{
-				ClosestDist = ClosestSquared;
-				ClosestLoc = HidingLoc;
-			}
-		}
-		
-		const FRotator TurnToPlayer = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerLoc);
-		
-		SetActorLocation(ClosestLoc);
-		SetActorRotation(TurnToPlayer);
-		
-		//When This Function Get Called It Started Timer On Behavior Tree Task
-		BBComp->SetValueAsBool("bSneakTimer", true);
-	}
 }
