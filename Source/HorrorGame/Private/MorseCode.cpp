@@ -230,13 +230,14 @@ void AMorseCode::OnMouseClicked()
 				}
 				
 				//Check Correct Code Everytime Click Button
-				CheckCorrectCode(ButtonValue, Index);
+				CheckCorrectCode(ButtonValue, Index, PrimComp);
 			}
 		}
 	}
 }
 
-void AMorseCode::CheckCorrectCode(const int32 ButtonValue, const int32 Index)
+void AMorseCode::CheckCorrectCode(const int32 ButtonValue, const int32 Index, UPrimitiveComponent* PrimpComp)
+
 {
 	if (CodeObjective[Index] == ButtonValue)
 	{
@@ -264,6 +265,7 @@ void AMorseCode::CheckCorrectCode(const int32 ButtonValue, const int32 Index)
 	
 	if (bIsPuzzleSolved)
 	{
+		PrimpComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Completed"));
 	}
 }

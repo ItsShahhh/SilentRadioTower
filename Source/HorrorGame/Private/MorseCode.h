@@ -105,7 +105,7 @@ private:
 	void ActivateMorseLight();
 	void RandomizeMorseCode();
 	void OnMouseClicked();
-	void CheckCorrectCode(const int32 ButtonValue, const int32 Index);
+	void CheckCorrectCode(const int32 ButtonValue, const int32 Index, UPrimitiveComponent* PrimpComp);
 
 public:	
 	// Called every frame
