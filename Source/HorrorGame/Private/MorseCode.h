@@ -54,6 +54,9 @@ protected:
 	TObjectPtr<UStaticMeshComponent> LightButton;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent> ConfirmButton;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> Button1;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -78,7 +81,7 @@ protected:
 	TMap<int32,FMorseSequence> MorseSignalMap;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<int32>CodeObjective;
+	TArray<int32>CodeObjective {0,0,0};
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<int32>CodeNumbers {0,0,0};
@@ -87,7 +90,7 @@ protected:
 	TMap<TObjectPtr<UPrimitiveComponent>,int32>ButtonMap;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TMap<int32,bool>CorrectButtonMap;
+	TMap<int32,bool>CorrectCodeMap;
 	
 private:
 	UPROPERTY()
@@ -105,7 +108,7 @@ private:
 	void ActivateMorseLight();
 	void RandomizeMorseCode();
 	void OnMouseClicked();
-	void CheckCorrectCode(const int32 ButtonValue, const int32 Index, UPrimitiveComponent* PrimpComp);
+	void CheckCorrectCode();
 
 public:	
 	// Called every frame

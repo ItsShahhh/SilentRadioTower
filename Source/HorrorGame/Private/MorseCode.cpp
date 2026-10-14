@@ -29,6 +29,9 @@ AMorseCode::AMorseCode()
 	LightButton = CreateDefaultSubobject<UStaticMeshComponent>("LightButton");
 	LightButton->SetupAttachment(MainMesh);
 	
+	ConfirmButton = CreateDefaultSubobject<UStaticMeshComponent>("ConfirmButton");
+	ConfirmButton->SetupAttachment(MainMesh);
+	
 	Button1 = CreateDefaultSubobject<UStaticMeshComponent>("Button1");
 	Button1->SetupAttachment(MainMesh);
 	
@@ -48,10 +51,6 @@ void AMorseCode::BeginPlay()
 	ButtonMap.Add(Button2,1);
 	ButtonMap.Add(Button3, 2);
 	
-	CorrectButtonMap.Add(0, false);
-	CorrectButtonMap.Add(1, false);
-	CorrectButtonMap.Add(2, false);
-	
 	if (WidgetComp)
 	{
 		MorseCodeNumberWidget = Cast<UMorseCodeNumberWidget>(WidgetComp->GetUserWidgetObject());
@@ -69,26 +68,15 @@ void AMorseCode::Tick(float DeltaTime)
 
 void AMorseCode::RandomizeMorseCode()
 {
-	for (int32 i = 0; i < 3; i++)
+	for (int32 i = 0; i < CodeObjective.Num(); i++)
 	{
-		//Check If The Index On The Array Is Already Added
-		//If Not It Will Add New Index and New Morse Code For That Index
-		if (!CodeObjective.IsValidIndex(i))
-		{
-			//Randomize Number For Each Interact
-			const int32 RandNumber = FMath::RandRange(0,9);
-		
-			CodeObjective.Add(RandNumber);
-		}
+		//Randomize Number For Each Interact
+		CodeObjective[i] = FMath::RandRange(0,9);
 	}
 }
 
 void AMorseCode::Interactable_Implementation(AActor* InteractActor)
 {
-	if (!IsValid(MorseLight)) return;
-	if (MorseSignalMap.IsEmpty()) return;
-	if (CodeObjective.IsEmpty()) return;
-	
 	Super::Interactable_Implementation(InteractActor);
 	
 	if (PC)
@@ -193,7 +181,6 @@ void AMorseCode::OnMouseClicked()
 	{
 		if (UPrimitiveComponent* PrimComp = HitResult.GetComponent())
 		{
-			//Activating Morse Light Code
 			if (PrimComp == LightButton)
 			{
 				if (!bIsMachineActive)
@@ -204,6 +191,10 @@ void AMorseCode::OnMouseClicked()
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
 				}
+			}
+			else if (PrimComp == ConfirmButton)
+			{
+				CheckCorrectCode();
 			}
 			else if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
 			{
@@ -228,44 +219,29 @@ void AMorseCode::OnMouseClicked()
 					default:
 					break;
 				}
-				
-				//Check Correct Code Everytime Click Button
-				CheckCorrectCode(ButtonValue, Index, PrimComp);
 			}
 		}
 	}
 }
 
-void AMorseCode::CheckCorrectCode(const int32 ButtonValue, const int32 Index, UPrimitiveComponent* PrimpComp)
-
+void AMorseCode::CheckCorrectCode()
 {
-	if (CodeObjective[Index] == ButtonValue)
-	{
-		CorrectButtonMap[Index] = true;
-	}
-	else
-	{
-		CorrectButtonMap[Index] = false;
-	}
+	//Empty Integer For Checking Correct Code
+	int32 CorrCode = 0;
 	
-	//We start by assuming the puzzle is solved.
-	bool bIsPuzzleSolved = true;
-
-	//This loop automatically goes through every single row in the TMap one by one.
-	for (const auto& Elem : CorrectButtonMap)
+	for (int32 i = 0; i < CodeObjective.Num(); i++)
 	{
-		//Elem.Key gives you the UPrimitiveComponent*
-		//Elem.Value gives you the data on the right side (e.g., the bool or int32)
-		if (Elem.Value == false) 
+		const int32 CheckCodeObj = CodeObjective[i];
+		const int32 CheckCodeNum = CodeNumbers[i];
+		
+		if (CheckCodeNum == CheckCodeObj)
 		{
-			bIsPuzzleSolved = false;
-			break; 
+			CorrCode++;
+			
+			if (CorrCode == 3)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Completed"));
+			}
 		}
-	}
-	
-	if (bIsPuzzleSolved)
-	{
-		PrimpComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Completed"));
 	}
 }
