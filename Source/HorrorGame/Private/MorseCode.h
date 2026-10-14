@@ -75,10 +75,19 @@ protected:
 	float LineTraceRange = 100.0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<int32, FMorseSequence> MorseSignalMap;
+	TMap<int32,FMorseSequence> MorseSignalMap;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<int32>CodeObjective;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<int32>CodeNumbers {0,0,0};
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TMap<TObjectPtr<UPrimitiveComponent>,int32>ButtonMap;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TMap<int32,bool>CorrectButtonMap;
 	
 private:
 	UPROPERTY()
@@ -90,16 +99,13 @@ private:
 	float NextSignal = 0;
 	
 	int32 CurrentMorseCode = 0;
-	int32 CurNumBut1 = 0;
-	int32 CurNumBut2 = 0;
-	int32 CurNumBut3 = 0;
 	
 	bool bIsMachineActive;
 	
 	void ActivateMorseLight();
 	void RandomizeMorseCode();
 	void OnMouseClicked();
-	void CheckCorrectCode();
+	void CheckCorrectCode(const int32 ButtonValue, const int32 Index);
 
 public:	
 	// Called every frame

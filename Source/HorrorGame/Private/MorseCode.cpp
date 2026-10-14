@@ -6,7 +6,6 @@
 #include "EnhancedInputComponent.h"
 #include "GeneratorMachine.h"
 #include "MorseCodeNumberWidget.h"
-#include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"
@@ -44,6 +43,14 @@ AMorseCode::AMorseCode()
 void AMorseCode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	ButtonMap.Add(Button1,0);
+	ButtonMap.Add(Button2,1);
+	ButtonMap.Add(Button3, 2);
+	
+	CorrectButtonMap.Add(0, false);
+	CorrectButtonMap.Add(1, false);
+	CorrectButtonMap.Add(2, false);
 	
 	if (WidgetComp)
 	{
@@ -167,6 +174,8 @@ void AMorseCode::OnMouseClicked()
 {
 	if (!IsValid(PC)) return;
 	if (!IsValid(MorseCodeNumberWidget)) return;
+	if (ButtonMap.IsEmpty()) return;
+	if (CodeNumbers.IsEmpty()) return;
 	
 	FVector MouseLoc;
 	FVector MouseDir;
@@ -184,9 +193,7 @@ void AMorseCode::OnMouseClicked()
 	{
 		if (UPrimitiveComponent* PrimComp = HitResult.GetComponent())
 		{
-			constexpr int32 MinVal = 0;
-			constexpr int32 MaxVal = 10;
-			
+			//Activating Morse Light Code
 			if (PrimComp == LightButton)
 			{
 				if (!bIsMachineActive)
@@ -198,64 +205,65 @@ void AMorseCode::OnMouseClicked()
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
 				}
 			}
-			else if (PrimComp == Button1)
+			else if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
 			{
-				CurNumBut1++;
-				CurNumBut1 = CurNumBut1 % MaxVal;
+				const int32 Index = *ButtonIndex;
+				CodeNumbers[Index] = (CodeNumbers[Index] + 1) % 10;
+				const int32 ButtonValue = CodeNumbers[Index];
 				
-				if (CurNumBut1 == MaxVal)
+				switch (Index)
 				{
-					CurNumBut1 = MinVal;
-				}
-				MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(CurNumBut1));
-			}
-			else if (PrimComp == Button2)
-			{
-				CurNumBut2++;
-				CurNumBut2 = CurNumBut2 % MaxVal;
+					case 0:
+					MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(ButtonValue));
+					break;
+					
+					case 1:
+					MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(ButtonValue));
+					break;
+					
+					case 2:
+					MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(ButtonValue));
+					break;
 				
-				if (CurNumBut2 == MaxVal)
-				{
-					CurNumBut2 = MinVal;
+					default:
+					break;
 				}
-				MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(CurNumBut2));
-			}
-			else if (PrimComp == Button3)
-			{
-				CurNumBut3++;
-				CurNumBut3 = CurNumBut3 % MaxVal;
 				
-				if (CurNumBut3 == MaxVal)
-				{
-					CurNumBut3 = MinVal;
-				}
-				MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CurNumBut3));
+				//Check Correct Code Everytime Click Button
+				CheckCorrectCode(ButtonValue, Index);
 			}
-			
-			//Check Correct Code Everytime Click Button
-			CheckCorrectCode();
 		}
 	}
 }
 
-void AMorseCode::CheckCorrectCode()
+void AMorseCode::CheckCorrectCode(const int32 ButtonValue, const int32 Index)
 {
-	const int32 Code1 = CodeObjective[0];
-	const int32 Code2 = CodeObjective[1];
-	const int32 Code3 = CodeObjective[2];
-	
-	if (Code1 == CurNumBut1 && Code2 == CurNumBut2 && Code3 == CurNumBut3)
+	if (CodeObjective[Index] == ButtonValue)
 	{
-		//Reset Current Number To 0
-		CurNumBut1 = 0;
-		CurNumBut2 = 0;
-		CurNumBut3 = 0;
-		
-		//Reset Morse Code Widget Text To 0
-		MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(0));
-		MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(0));
-		MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(0));
-		
-		ExitFromInteractable();
+		CorrectButtonMap[Index] = true;
+	}
+	else
+	{
+		CorrectButtonMap[Index] = false;
+	}
+	
+	//We start by assuming the puzzle is solved.
+	bool bIsPuzzleSolved = true;
+
+	//This loop automatically goes through every single row in the TMap one by one.
+	for (const auto& Elem : CorrectButtonMap)
+	{
+		//Elem.Key gives you the UPrimitiveComponent*
+		//Elem.Value gives you the data on the right side (e.g., the bool or int32)
+		if (Elem.Value == false) 
+		{
+			bIsPuzzleSolved = false;
+			break; 
+		}
+	}
+	
+	if (bIsPuzzleSolved)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Completed"));
 	}
 }
