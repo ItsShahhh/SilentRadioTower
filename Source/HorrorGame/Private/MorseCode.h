@@ -47,6 +47,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> CameraComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAudioComponent> LightQueueAudio;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAudioComponent> MorseCodeLightAudio;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> ButtonInteractAction;
 	
@@ -77,14 +83,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float LineTraceRange = 100.0f;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<int32,FMorseSequence> MorseSignalMap;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<int32>CodeObjective {0,0,0};
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<int32>CodeNumbers {0,0,0};
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<int32,FMorseSequence> MorseSignalMap;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<int32,USoundBase*>LightQueueMap;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TMap<TObjectPtr<UPrimitiveComponent>,int32>ButtonMap;
@@ -97,13 +106,17 @@ private:
 	TObjectPtr<UMorseCodeNumberWidget> MorseCodeNumberWidget;
 	
 	FTimerHandle MorseLightTimerHandle;
+	
 	FMorseSequence ChoosenMorseSignal;
 	
 	float NextSignal = 0;
 	
 	int32 CurrentMorseCode = 0;
+	int32 CurrentLightQueue = 0;
+	int32 AllSignalNum = 0;
 	
 	bool bIsMachineActive;
+	bool bCanPlayQueues = true;
 	
 	void ActivateMorseLight();
 	void RandomizeMorseCode();

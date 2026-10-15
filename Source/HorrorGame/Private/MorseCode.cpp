@@ -10,6 +10,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 AMorseCode::AMorseCode()
@@ -22,6 +23,12 @@ AMorseCode::AMorseCode()
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(MainMesh);
+	
+	LightQueueAudio = CreateDefaultSubobject<UAudioComponent>("LightQueueAudio");
+	LightQueueAudio->SetupAttachment(MainMesh);
+	
+	MorseCodeLightAudio = CreateDefaultSubobject<UAudioComponent>("MorseCodeLightAudio");
+	MorseCodeLightAudio->SetupAttachment(MainMesh);
 	
 	WidgetComp = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent");
 	WidgetComp->SetupAttachment(MainMesh);
@@ -133,29 +140,52 @@ void AMorseCode::ActivateMorseLight()
 		BeepDuration = LongBeep;
 	}
 	
+	if (bCanPlayQueues)
+	{
+		if (LightQueueMap.Contains(CurrentLightQueue))
+		{
+			//Play Light Morse Code Queue
+			LightQueueAudio->SetSound(LightQueueMap[CurrentLightQueue]);
+			LightQueueAudio->Play();
+			
+			bCanPlayQueues = false;
+		}
+	}
+	
 	//Activate The Light
 	MorseLight->SetVisibility(true);
 	
-	//Added Beep Sound Here
+	//Increment Everytime This Function Called
+	AllSignalNum++;
 	
 	GetWorldTimerManager().SetTimer(MorseLightTimerHandle, [this]
 	{
 		MorseLight->SetVisibility(false);
 		NextSignal++;
 		
-		//Stop Beep Sound Here
-		
-		GetWorldTimerManager().SetTimer(MorseLightTimerHandle, [this]
-		{
-			ActivateMorseLight();
-		},
-		1.0f,
-		false
-		);
+		ActivateMorseLight();
 	},
 	BeepDuration,
 	false
 	);
+	
+	//Reset Current Light Queue Back To O
+	if (AllSignalNum == ChoosenMorseSignal.Signals.Num())
+	{
+		bCanPlayQueues = true;
+		
+		CurrentLightQueue++;
+		AllSignalNum = 0;
+		
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Called"));
+
+		
+		if (CurrentLightQueue == LightQueueMap.Num())
+		{
+			CurrentLightQueue = 0;
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Reset Current Light"));
+		}
+	}
 }
 
 void AMorseCode::OnMouseClicked()
@@ -164,6 +194,7 @@ void AMorseCode::OnMouseClicked()
 	if (!IsValid(MorseCodeNumberWidget)) return;
 	if (ButtonMap.IsEmpty()) return;
 	if (CodeNumbers.IsEmpty()) return;
+	if (LightQueueMap.IsEmpty()) return;
 	
 	FVector MouseLoc;
 	FVector MouseDir;
