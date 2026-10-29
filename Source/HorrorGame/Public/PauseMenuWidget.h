@@ -20,6 +20,8 @@ class HORRORGAME_API UPauseMenuWidget : public UUserWidget
 	GENERATED_BODY()
 	
 protected:
+	virtual void NativeConstruct() override;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ResumeButton;
 	
@@ -38,19 +40,16 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MainMenuText;
 	
-	virtual void NativeConstruct() override;
-	
 private:
+	UPROPERTY()
+	TObjectPtr<UWorldSystem> WorldSystem;
+	
 	UFUNCTION()
 	void OnClickResumeButton() const;
 	UFUNCTION()
 	void OnClickOptionsButton() const;
 	UFUNCTION()
 	void OnClickMainMenuButton() const;
-	
-	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
-	
 	UFUNCTION()
 	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	

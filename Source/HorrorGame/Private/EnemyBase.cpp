@@ -22,12 +22,16 @@ void AEnemyBase::BeginPlay()
 	Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
+	checkf(Player, TEXT("Failed To Get Player Character In EnemyBase"));
+	checkf(WorldSystem, TEXT("Failed To Get World System In EnemyBase"));
+	
 	AIController = Cast<AAIController>(GetController());
 	
-	if (IsValid(AIController))
-	{
-		BBComp = AIController->GetBlackboardComponent(); 
-	}
+	checkf(AIController,TEXT("Failed To Get AI Controller In EnemyBase"));
+	
+	BBComp = AIController->GetBlackboardComponent(); 
+	
+	checkf(BBComp,TEXT("Failed To Get BlackBoard In EnemyBase"));
 }
 
 // Called every frame
@@ -35,23 +39,17 @@ void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (IsValid(Player))
-	{
-		const FVector EnemLoc = GetActorLocation();
-		const FVector PlayerLoc = Player->GetActorLocation();
+	const FVector EnemLoc = GetActorLocation();
+	const FVector PlayerLoc = Player->GetActorLocation();
 			
-		const FVector DirArrow = ( EnemLoc - PlayerLoc ).GetSafeNormal(); 
+	const FVector DirArrow = ( EnemLoc - PlayerLoc ).GetSafeNormal(); 
 			
-		const float Dot = FVector::DotProduct(Player->GetActorForwardVector(), DirArrow);
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("%f"), Dot));
+	const float Dot = FVector::DotProduct(Player->GetActorForwardVector(), DirArrow);
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("%f"), Dot));
 
-		if (Dot > 0.7f)
-		{
-			if (BBComp)
-			{
-				BBComp->SetValueAsBool("bIsSpotted", true);
-			}
-		}
+	if (Dot > 0.7f)
+	{
+		BBComp->SetValueAsBool("bIsSpotted", true);
 	}
 }
 

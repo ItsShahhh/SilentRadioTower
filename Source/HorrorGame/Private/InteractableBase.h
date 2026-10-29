@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "InteractableBase.generated.h"
 
+class UCameraComponent;
 class UWorldSystem;
 
 UCLASS()
@@ -27,6 +28,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MainMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UCameraComponent> MainCamera;
 	
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;

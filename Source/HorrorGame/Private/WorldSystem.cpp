@@ -14,32 +14,28 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 	//Get Game Settings From Project Setting For Data Table
 	GameSettings =  GetDefault<UGameSettings>();
 	
-	if (GameSettings)
-	{
-		//Only Load The Global Table Once
-		LoadDialogueTable = GameSettings->GlobalDialogueTable.LoadSynchronous();
+	checkf(GameSettings, TEXT("Failed To Get GameSettings From World System"));
+	
+	//Only Load The Global Table Once
+	LoadDialogueTable = GameSettings->GlobalDialogueTable.LoadSynchronous();
 		
-		//Only Load The Global Table Once
-		LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
-	}
+	//Only Load The Global Table Once
+	LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
 }
 
 void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
 {
 	if (!DialogueTag.IsValid()) return;
 	
-	if (LoadDialogueTable)
-	{
-		//Convert Dialogue Tag To FName To Use For Finding Row
-		const FName& RowName = DialogueTag.GetTagName();
+	//Convert Dialogue Tag To FName To Use For Finding Row
+	const FName& RowName = DialogueTag.GetTagName();
 	
-		//Find Row Based On Given Name
-		//Also Check If Found Dialogue Is Valid
-		if (const FDialogueLine* FoundDialogueLine = LoadDialogueTable->FindRow<FDialogueLine>(RowName, TEXT("Current Dialogue"),true))
-		{
-			//When Found The Name That Match The Row, It Will Be Broadcast To Dialogue Widget
-			OnProcessDialogue.Broadcast(*FoundDialogueLine);
-		}
+	//Find Row Based On Given Name
+	//Also Check If Found Dialogue Is Valid
+	if (const FDialogueLine* FoundDialogueLine = LoadDialogueTable->FindRow<FDialogueLine>(RowName, TEXT("Current Dialogue"),true))
+	{
+		//When Found The Name That Match The Row, It Will Be Broadcast To Dialogue Widget
+		OnProcessDialogue.Broadcast(*FoundDialogueLine);
 	}
 }
 
@@ -47,19 +43,16 @@ void UWorldSystem::StartQuest(const FGameplayTag QuestTag)
 {
 	if (!QuestTag.IsValid()) return;
 	
-	if (LoadQuestTable)
+	const FName& RowName = QuestTag.GetTagName();
+	
+	FoundQuestData = LoadQuestTable->FindRow<FQuestData>(RowName, TEXT("Current Quest"),true);
+	
+	if (FoundQuestData)
 	{
-		const FName& RowName = QuestTag.GetTagName();
-	
-		FoundQuestData = LoadQuestTable->FindRow<FQuestData>(RowName, TEXT("Current Quest"),true);
-	
-		if (FoundQuestData)
-		{
-			ActiveQuest.ActiveQuestTag = FoundQuestData->QuestTag;
-			ActiveQuest.NextActiveQuest = FoundQuestData->NextQuest;
+		ActiveQuest.ActiveQuestTag = FoundQuestData->QuestTag;
+		ActiveQuest.NextActiveQuest = FoundQuestData->NextQuest;
 			
-			OnUpdateQuest.Broadcast(*FoundQuestData);
-		}
+		OnUpdateQuest.Broadcast(*FoundQuestData);
 	}
 }
 
@@ -80,8 +73,6 @@ void UWorldSystem::CompletedQuest()
 
 void UWorldSystem::InitiateRandomEvent()
 {
-	if (!IsValid(GameSettings)) return;
-	
 	//This Bool Avoid The Random Event Get Called Twice
 	if (!bAlreadyInitiated)
 	{

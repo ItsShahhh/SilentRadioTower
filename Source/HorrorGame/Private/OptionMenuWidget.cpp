@@ -18,59 +18,44 @@ void UOptionMenuWidget::NativeConstruct()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	UserSettings = GEngine->GetGameUserSettings();
+	
+	checkf(WorldSystem, TEXT("Failed To Get World System In Option Widget"));
+	checkf(UserSettings, TEXT("Failed To Get User Settings In Option Widget"));
 	 
-	if (const ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
-	{
-		CameraComp = Player->FindComponentByClass<UCameraComponent>();
-	}
+	const ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	CameraComp = Player->FindComponentByClass<UCameraComponent>();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UOptionMenuWidget::ToggleWidget);
-	}
+	checkf(CameraComp, TEXT("Failed To Get Camera Component In Option Widget"));
 	
-	if (ControlMenuButton)
-	{
-		ControlMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::ControlMenu);
-	}
+	WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UOptionMenuWidget::ToggleWidget);
 	
-	if (AudioMenuButton)
-	{
-		AudioMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::AudioMenu);
-	}
+	ControlMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::ControlMenu);
 	
-	if (GameplayMenuButton)
-	{
-		GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
-		
-		//Chromatic Abberation
-		GameplayMenuUserCreated->ChromaticAbberationCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleChromaticAbberation);
-		
-		//VHS
-		GameplayMenuUserCreated->VHSCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVHS);
-		
-		//VSync
-		GameplayMenuUserCreated->VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVSync);
-		
-		//Fullscreen
-		GameplayMenuUserCreated->FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFullscreen);
-		
-		//Film Grain
-		GameplayMenuUserCreated->FilmGrainCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFilmGrain);
-		
-		//Motion Blur
-		GameplayMenuUserCreated->MotionBlurCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleMotionBlur);
-	}
+	AudioMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::AudioMenu);
 	
-	if (BackButton)
-	{
-		BackButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::BackMenu);
-	}
+	GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
+		
+	//Chromatic Abberation
+	GameplayMenuUserCreated->ChromaticAbberationCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleChromaticAbberation);
+		
+	//VHS
+	GameplayMenuUserCreated->VHSCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVHS);
+		
+	//VSync
+	GameplayMenuUserCreated->VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleVSync);
+		
+	//Fullscreen
+	GameplayMenuUserCreated->FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFullscreen);
+		
+	//Film Grain
+	GameplayMenuUserCreated->FilmGrainCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleFilmGrain);
+		
+	//Motion Blur
+	GameplayMenuUserCreated->MotionBlurCheckBox->OnCheckStateChanged.AddDynamic(this, &UOptionMenuWidget::ToggleMotionBlur);
 	
-	if (ControlMenuUserCreated)
-	{
-		ControlMenuUserCreated->MouseSensitivitySlider->OnValueChanged.AddDynamic(this, &UOptionMenuWidget::SetMouseSensitivity);
-	}
+	BackButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::BackMenu);
+	
+	ControlMenuUserCreated->MouseSensitivitySlider->OnValueChanged.AddDynamic(this, &UOptionMenuWidget::SetMouseSensitivity);
 	
 	if (AudioMenuUserCreated)
 	{
@@ -102,31 +87,26 @@ void UOptionMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 
 void UOptionMenuWidget::ControlMenu() const
 {
-	if (!MenuSwitch) return;
 	MenuSwitch->SetActiveWidgetIndex(0);
 }
 
 void UOptionMenuWidget::AudioMenu() const
 {
-	if (!MenuSwitch) return;
 	MenuSwitch->SetActiveWidgetIndex(1);
 }
 
 void UOptionMenuWidget::GameplayMenu() const
 {
-	if (!MenuSwitch) return;
 	MenuSwitch->SetActiveWidgetIndex(2);
 }
 
 void UOptionMenuWidget::BackMenu() const
 {
-	if (!IsValid(WorldSystem)) return;
 	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::BackMenu);
 }
 
 void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
 {
-	if (!ControlMenuUserCreated) return;
 	ControlMenuUserCreated->OnUpdateNewSens.Broadcast(NewMouseSens);
 	
 	FNumberFormattingOptions NumberFormattingOptions;
@@ -139,7 +119,6 @@ void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
 
 void UOptionMenuWidget::ToggleChromaticAbberation(const bool OnChecked) const
 {
-	if (!IsValid(GameplayMenuUserCreated)) return;
 	if (!GameplayMenuUserCreated->ParameterCollection) return;
 	
 	const float CA_Toggle = OnChecked ? 1.0f : 0.0f;
@@ -148,7 +127,6 @@ void UOptionMenuWidget::ToggleChromaticAbberation(const bool OnChecked) const
 
 void UOptionMenuWidget::ToggleVHS(const bool OnChecked) const
 {
-	if (!IsValid(GameplayMenuUserCreated)) return;
 	if (!GameplayMenuUserCreated->ParameterCollection) return;
 	
 	const float VHS_Toggle = OnChecked ? 1.0f : 0.0f;
@@ -157,14 +135,11 @@ void UOptionMenuWidget::ToggleVHS(const bool OnChecked) const
 
 void UOptionMenuWidget::ToggleVSync(const bool OnChecked) const
 {
-	if (!UserSettings) return;
 	UserSettings->SetVSyncEnabled(OnChecked);
 }
 
 void UOptionMenuWidget::ToggleFullscreen(const bool OnChecked) const
 {
-	if (!UserSettings) return;
-	
 	if (!OnChecked)
 	{
 		UserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
@@ -177,12 +152,10 @@ void UOptionMenuWidget::ToggleFullscreen(const bool OnChecked) const
 
 void UOptionMenuWidget::ToggleFilmGrain(const bool OnChecked) const
 {
-	if (!IsValid(CameraComp)) return;
 	CameraComp->PostProcessSettings.FilmGrainIntensity = OnChecked ? 1.0f : 0.0f;
 }
 
 void UOptionMenuWidget::ToggleMotionBlur(const bool OnChecked) const
 {
-	if (!IsValid(CameraComp)) return;
 	CameraComp->PostProcessSettings.MotionBlurAmount = OnChecked ? 0.5f : 0.0f;
 }

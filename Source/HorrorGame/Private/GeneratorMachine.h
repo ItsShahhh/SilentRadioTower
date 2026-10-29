@@ -24,9 +24,6 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UCameraComponent> CameraComp;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> BigButton;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -41,16 +38,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Input")
 	TObjectPtr<UInputAction> ButtonInteractAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<TObjectPtr<UPrimitiveComponent>, bool> ButtonsMap;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Input")
 	float LineTraceRange = 200.0f;
 	
 private:
-	UPROPERTY()
-	TSet<TObjectPtr<UPrimitiveComponent>> PressedButtons;
-	
 	bool bCanPressed = false;
 	
 	void OnMouseClicked();
+	void CheckButtons(const FHitResult& HitResult);
 	
 	UFUNCTION()
 	void RandGeneratorPower(const ERandomEvent SelRanEvents);

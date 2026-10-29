@@ -38,7 +38,6 @@ private:
 	TObjectPtr<APlayerController> PC;
 	
 	bool bHit;
-	bool bLastHit;
 
 public:	
 	// Called every frame

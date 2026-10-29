@@ -16,9 +16,6 @@ ASatelite::ASatelite()
 	
 	ValveMesh = CreateDefaultSubobject<UStaticMeshComponent>("ValveMesh");
 	ValveMesh->SetupAttachment(RootComp);
-	
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComp->SetupAttachment(RootComp);
 }
 
 // Called when the game starts or when spawned
@@ -26,10 +23,7 @@ void ASatelite::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ASatelite::RandSatelliteRot);
-	}
+	WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ASatelite::RandSatelliteRot);
 }
 
 // Called every frame
@@ -41,8 +35,6 @@ void ASatelite::Tick(float DeltaTime)
 void ASatelite::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
-	
-	if (!IsValid(InteractActor)) return;
 	
 	//Now that EnableInput created the component, we cast it and bind.
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
@@ -56,8 +48,6 @@ void ASatelite::Interactable_Implementation(AActor* InteractActor)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ASatelite::RotateValve(const FInputActionValue& Value)
 {
-	if (!IsValid(ValveMesh)) return;
-	
 	//Added and Multiply Rotation Value With Speed
 	//Then Capped The Valve Rotation Using The Rotation Value That We Multiply and Added, Capped To Only -180 and 180
 	const float RotationValue = Value.Get<float>();
@@ -68,14 +58,11 @@ void ASatelite::RotateValve(const FInputActionValue& Value)
 	ValveMesh->SetRelativeRotation(FRotator(0.0f, 0.0f , ValveRotation));
 	
 	//Multiply The Current Rotation Satelite By Valve Rotation
-	MainMesh->SetRelativeRotation(FRotator(0.0f, ValveRotation, 0.0f));
+	MainMesh->SetWorldRotation(FRotator(0.0f, ValveRotation, 0.0f));
 	
 	if (ValveRotation == SatelliteRotObj)
 	{
-		if (WorldSystem)
-		{
-			WorldSystem->InitiateRandomEvent();
-		}
+		WorldSystem->InitiateRandomEvent();
 		
 		ExitFromInteractable();
 	}

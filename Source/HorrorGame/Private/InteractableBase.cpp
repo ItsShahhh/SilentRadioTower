@@ -3,6 +3,8 @@
 
 #include "InteractableBase.h"
 #include "WorldSystem.h"
+#include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AInteractableBase::AInteractableBase()
@@ -15,6 +17,8 @@ AInteractableBase::AInteractableBase()
 	
 	MainMesh = CreateDefaultSubobject<UStaticMeshComponent>("MainMesh");
 	MainMesh->SetupAttachment(RootComp);
+	
+	MainCamera = CreateDefaultSubobject<UCameraComponent>("MainCamera");
 }
 
 // Called when the game starts or when spawned
@@ -22,10 +26,17 @@ void AInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (!WorldSystem)
-	{
-		WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
-	}
+	Pawn = Cast<APawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+	
+	checkf(Pawn, TEXT("Failed To Get Pawn In Interactable Base"));
+	
+	PC = Cast<APlayerController>(Pawn->GetController());
+	
+	checkf(PC, TEXT("Failed To Get Player Controller In Interactable Base"));
+	
+	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	
+	checkf(WorldSystem, TEXT("Failed To Get World System In Interactable Base"));
 }
 
 // Called every frame
@@ -39,21 +50,8 @@ void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 	if (!IsValid(InteractActor)) return;
 	
 	InteractingActor = InteractActor;
-	
 	InteractingActor->SetActorHiddenInGame(true);
 	
-	if (!Pawn && !PC)
-	{
-		Pawn = Cast<APawn>(InteractActor);
-		if (Pawn)
-		{
-			PC = Cast<APlayerController>(Pawn->GetController());
-		}
-	}
-    
-	if (!IsValid(PC)) return;
-	if (!IsValid(Pawn)) return;
-
 	//Change Camera
 	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
 
@@ -68,23 +66,23 @@ void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 	
 	GetWorldTimerManager().SetTimer(ObjectiveTimerHandle, [this]
 	{
-		if (WorldSystem)
-		{
-			WorldSystem->InitiateRandomEvent();
-		}
+		WorldSystem->InitiateRandomEvent();
 	},
-	10.0f,
+	1.0f,
 	false
 	);
 }
 
 void AInteractableBase::ExitFromInteractable()
 {
-	if (!InteractingActor) return;
-	if (!IsValid(Pawn)) return;
-	if (!IsValid(PC)) return;
-	
 	InteractingActor->SetActorHiddenInGame(false);
+	
+	// Fixed Only Can Turn Camera Halfway Because Of Unlocking Mouse
+	// Lock the invisible mouse back to the center of the screen!
+	const FInputModeGameOnly GameOnlyMode;
+	PC->SetInputMode(GameOnlyMode);
+						
+	PC->bShowMouseCursor = false;
 	
 	PC->SetViewTargetWithBlend(Pawn, BlendSpeed, VTBlend_Linear);
 	this->DisableInput(PC);

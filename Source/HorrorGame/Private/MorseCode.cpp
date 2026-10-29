@@ -6,7 +6,6 @@
 #include "EnhancedInputComponent.h"
 #include "GeneratorMachine.h"
 #include "MorseCodeNumberWidget.h"
-#include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
@@ -20,9 +19,6 @@ AMorseCode::AMorseCode()
 	
 	MorseLight = CreateDefaultSubobject<USpotLightComponent>("MorseLight");
 	MorseLight->SetupAttachment(MainMesh);
-	
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(MainMesh);
 	
 	LightQueueAudio = CreateDefaultSubobject<UAudioComponent>("LightQueueAudio");
 	LightQueueAudio->SetupAttachment(MainMesh);
@@ -58,10 +54,11 @@ void AMorseCode::BeginPlay()
 	ButtonMap.Add(Button2,1);
 	ButtonMap.Add(Button3, 2);
 	
-	if (WidgetComp)
-	{
-		MorseCodeNumberWidget = Cast<UMorseCodeNumberWidget>(WidgetComp->GetUserWidgetObject());
-	}
+	checkf(WidgetComp, TEXT("Failed To Get Widget Component In Morse Code"));
+	
+	MorseCodeNumberWidget = Cast<UMorseCodeNumberWidget>(WidgetComp->GetUserWidgetObject());
+	
+	checkf(MorseCodeNumberWidget, TEXT("Failed To Get Morse Code Number Widget In Morse Code"));
 	
 	RandomizeMorseCode();
 }
@@ -70,7 +67,6 @@ void AMorseCode::BeginPlay()
 void AMorseCode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AMorseCode::RandomizeMorseCode()
@@ -86,14 +82,11 @@ void AMorseCode::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
 	
-	if (PC)
-	{
-		PC->bShowMouseCursor = true;
+	PC->bShowMouseCursor = true;
 		
-		//Set Input To Game And UI, So When Interact Again It Will Be Able To Click
-		const FInputModeGameAndUI GameAndUIMode;
-		PC->SetInputMode(GameAndUIMode);
-	}
+	//Set Input To Game And UI, So When Interact Again It Will Be Able To Click
+	const FInputModeGameAndUI GameAndUIMode;
+	PC->SetInputMode(GameAndUIMode);
 	
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
 	{
@@ -106,96 +99,8 @@ void AMorseCode::Interactable_Implementation(AActor* InteractActor)
 	}
 }
 
-void AMorseCode::ActivateMorseLight()
-{
-	//Getting The Current Code Objective Need For Button
-	const int32 CodeObjectiveIndex = CodeObjective[CurrentMorseCode];
-	
-	//Based On The Random Number It Chose The Morse Signal Map
-	ChoosenMorseSignal = MorseSignalMap[CodeObjectiveIndex];
-	
-	if (!ChoosenMorseSignal.Signals.IsValidIndex(NextSignal))
-	{
-		//If Next Signal Is More Than Array That Mean The Morse Code Is Only That Much
-		//After That We Reset The Number For The Next Morse Code
-		NextSignal = 0;
-		bIsMachineActive = false;
-		return;
-	}
-	
-	//Set The bIsMachineActive To True Indicate Machine Is Current Active
-	bIsMachineActive = true;
-
-	//Crate Empty Float
-	float BeepDuration = 0;
-	
-	//It Will Set The Beep Duration Based On The Signals That Been Chose By The Next Signal Index
-	//Reminder: Can Just Used Ternary But Make It Like So It Easier To Understand 
-	if (ChoosenMorseSignal.Signals[NextSignal] == EMorseSignal::Dot)
-	{
-		BeepDuration = ShortBeep;
-	}
-	else if (ChoosenMorseSignal.Signals[NextSignal] == EMorseSignal::Dash)
-	{
-		BeepDuration = LongBeep;
-	}
-	
-	if (bCanPlayQueues)
-	{
-		if (LightQueueMap.Contains(CurrentLightQueue))
-		{
-			//Play Light Morse Code Queue
-			LightQueueAudio->SetSound(LightQueueMap[CurrentLightQueue]);
-			LightQueueAudio->Play();
-			
-			bCanPlayQueues = false;
-		}
-	}
-	
-	//Activate The Light
-	MorseLight->SetVisibility(true);
-	
-	//Increment Everytime This Function Called
-	AllSignalNum++;
-	
-	GetWorldTimerManager().SetTimer(MorseLightTimerHandle, [this]
-	{
-		MorseLight->SetVisibility(false);
-		NextSignal++;
-		
-		ActivateMorseLight();
-	},
-	BeepDuration,
-	false
-	);
-	
-	//Reset Current Light Queue Back To O
-	if (AllSignalNum == ChoosenMorseSignal.Signals.Num())
-	{
-		bCanPlayQueues = true;
-		
-		CurrentLightQueue++;
-		AllSignalNum = 0;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Called"));
-
-		
-		if (CurrentLightQueue == LightQueueMap.Num())
-		{
-			CurrentLightQueue = 0;
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Reset Current Light"));
-		}
-	}
-}
-
 void AMorseCode::OnMouseClicked()
 {
-	if (!IsValid(PC)) return;
-	if (!IsValid(MorseCodeNumberWidget)) return;
-	if (ButtonMap.IsEmpty()) return;
-	if (CodeNumbers.IsEmpty()) return;
-	if (LightQueueMap.IsEmpty()) return;
-	
 	FVector MouseLoc;
 	FVector MouseDir;
 	
@@ -210,49 +115,112 @@ void AMorseCode::OnMouseClicked()
 	
 	if (bHit)
 	{
-		if (UPrimitiveComponent* PrimComp = HitResult.GetComponent())
+		PressedButton(HitResult);
+	}
+}
+
+void AMorseCode::PressedButton(const FHitResult& HitResult)
+{
+	if (UPrimitiveComponent* PrimComp = HitResult.GetComponent())
+	{
+		if (PrimComp == LightButton)
 		{
-			if (PrimComp == LightButton)
+			if (!bIsMachineActive)
 			{
-				if (!bIsMachineActive)
-				{
-					ActivateMorseLight();
-				}
-				else
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
-				}
+				ActivateMorseLight();
 			}
-			else if (PrimComp == ConfirmButton)
+			else
 			{
-				CheckCorrectCode();
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
 			}
-			else if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
+		}
+		else if (PrimComp == ConfirmButton)
+		{
+			CheckCorrectCode();
+		}
+		else if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
+		{
+			CodeNumbers[*ButtonIndex] = (CodeNumbers[*ButtonIndex] + 1) % 10;
+				
+			switch (*ButtonIndex)
 			{
-				const int32 Index = *ButtonIndex;
-				CodeNumbers[Index] = (CodeNumbers[Index] + 1) % 10;
-				const int32 ButtonValue = CodeNumbers[Index];
-				
-				switch (Index)
-				{
-					case 0:
-					MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(ButtonValue));
-					break;
+			case 0:
+				MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
+				break;
 					
-					case 1:
-					MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(ButtonValue));
-					break;
+			case 1:
+				MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
+				break;
 					
-					case 2:
-					MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(ButtonValue));
-					break;
+			case 2:
+				MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
+				break;
 				
-					default:
-					break;
-				}
+			default:
+				break;
 			}
 		}
 	}
+}
+
+void AMorseCode::ActivateMorseLight()
+{
+	//Use Find() to get a pointer instead of copying the struct
+	const FMorseSequence* ChoosenMorseSignal = MorseSignalMap.Find(CodeObjective[CurrentMorseCode]);
+
+	if (!ChoosenMorseSignal->Signals.IsValidIndex(NextSignal))
+	{
+		//Increment The Current Morse Code After Finishing All The Light From Morse Code Before
+		CurrentMorseCode++;
+		
+		//Reset Everything To Default
+		NextSignal = 0;
+		bIsMachineActive = false;
+		bQueuesSound = true;
+		
+		//Check If We Already Activate All Light Based On Code Objective It Will Reset The Current Morse Code
+		if (!CodeObjective.IsValidIndex(CurrentMorseCode))
+		{
+			CurrentMorseCode = 0;
+		}
+		
+		//Only Reset To Default If All The Light Queues Sound Has Been Played
+		if (CurrentLightQueue == LightQueueMap.Num())
+		{
+			CurrentLightQueue = 0;
+		}
+		
+		return;
+	}
+
+	if (bQueuesSound)
+	{
+		//Use Find() to check existence and grab the sound simultaneously
+		if (USoundBase** FoundSound = LightQueueMap.Find(CurrentLightQueue))
+		{
+			LightQueueAudio->SetSound(*FoundSound);
+			LightQueueAudio->Play();
+			bQueuesSound = false;
+		}
+	}
+	
+	//Set This To True For PressedButton Function So It Cannot Be Spammed
+	bIsMachineActive = true;
+	
+	//Determine Beep Duration Based On Current Signal
+	BeepDuration = ChoosenMorseSignal->Signals[NextSignal] == EMorseSignal::Dot ? ShortBeep : LongBeep;
+
+	MorseLight->SetVisibility(true);
+	
+	GetWorldTimerManager().SetTimer(MorseLightTimerHandle, this, &AMorseCode::DeactivateMorseLight, BeepDuration, false);
+}
+
+void AMorseCode::DeactivateMorseLight()
+{
+	MorseLight->SetVisibility(false);
+	NextSignal++;
+	
+	GetWorldTimerManager().SetTimer(MorseLightTimerHandle, this, &AMorseCode::ActivateMorseLight, BeepDuration, false);
 }
 
 void AMorseCode::CheckCorrectCode()
@@ -269,9 +237,9 @@ void AMorseCode::CheckCorrectCode()
 		{
 			CorrCode++;
 			
-			if (CorrCode == 3)
+			if (CorrCode == CodeObjective.Num())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Completed"));
+				ExitFromInteractable();
 			}
 		}
 	}

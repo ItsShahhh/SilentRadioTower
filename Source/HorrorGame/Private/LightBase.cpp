@@ -30,11 +30,10 @@ void ALightBase::BeginPlay()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnUpdateLight.AddDynamic(this, &ALightBase::ToggleLight);
-		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ALightBase::RandEventPower);
-	}
+	checkf(WorldSystem, TEXT("Failed To Get World System In Light Base"))
+	
+	WorldSystem->OnUpdateLight.AddDynamic(this, &ALightBase::ToggleLight);
+	WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &ALightBase::RandEventPower);
 }
 
 // Called every frame
@@ -45,7 +44,6 @@ void ALightBase::Tick(float DeltaTime)
 
 void ALightBase::ToggleLight(const bool ToggleLight) const
 {
-	if (!IsValid(LightComp)) return;
 	LightComp->SetVisibility(ToggleLight);
 }
 

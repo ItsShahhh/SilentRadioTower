@@ -9,7 +9,6 @@
 class UBlackboardComponent;
 class ATargetPoint;
 class AAIController;
-enum class ERandomEvent : uint8;
 class UWorldSystem;
 
 UCLASS()

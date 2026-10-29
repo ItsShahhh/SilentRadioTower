@@ -2,17 +2,12 @@
 
 
 #include "GeneratorMachine.h"
-
 #include "EnhancedInputComponent.h"
 #include "RandomEvent.h"
 #include "WorldSystem.h"
-#include "Camera/CameraComponent.h"
 
 AGeneratorMachine::AGeneratorMachine()
 {
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	CameraComp->SetupAttachment(MainMesh);
-	
 	BigButton = CreateDefaultSubobject<UStaticMeshComponent>("BigButtonm");
 	BigButton->SetupAttachment(MainMesh);
 	
@@ -30,24 +25,23 @@ void AGeneratorMachine::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AGeneratorMachine::RandGeneratorPower);
-	}
+	ButtonsMap.Add(BigButton, false);
+	ButtonsMap.Add(SmallButton1, false);
+	ButtonsMap.Add(SmallButton2, false);
+	ButtonsMap.Add(SmallButton3, false);
+	
+	WorldSystem->OnUpdateRandomEvent.AddDynamic(this, &AGeneratorMachine::RandGeneratorPower);
 }
 
 void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
 	
-	if (PC)
-	{
-		PC->bShowMouseCursor = true;
+	PC->bShowMouseCursor = true;
 		
-		//Set Input To Game And UI, So When Interact Again It Will Be Able To Click
-		const FInputModeGameAndUI GameAndUIMode;
-		PC->SetInputMode(GameAndUIMode);
-	}
+	//Set Input To Game And UI, So When Interact Again It Will Be Able To Click
+	const FInputModeGameAndUI GameAndUIMode;
+	PC->SetInputMode(GameAndUIMode);
 	
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
 	{
@@ -63,7 +57,6 @@ void AGeneratorMachine::Interactable_Implementation(AActor* InteractActor)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void AGeneratorMachine::OnMouseClicked()
 {
-	if (!IsValid(PC)) return;
 	if (!bCanPressed) return;
 	
 	FVector MouseLoc;
@@ -80,44 +73,43 @@ void AGeneratorMachine::OnMouseClicked()
 	
 	if (bHit)
 	{
-		if (UPrimitiveComponent* HitComp = HitResult.GetComponent())
+		CheckButtons(HitResult);
+	}
+}
+
+void AGeneratorMachine::CheckButtons(const FHitResult& HitResult)
+{
+	if (UPrimitiveComponent* HitComp = HitResult.GetComponent())
+	{
+		if (!ButtonsMap.Contains(HitComp)) return;
+		
+		//If Click Button That Already Pressed It Will Just Return Instead Of Checking
+		if (ButtonsMap[HitComp]) return;
+		
+		if (bool* Pressed = ButtonsMap.Find(HitComp))
 		{
-			if (HitComp->ComponentHasTag("Button"))
+			*Pressed = true;
+		}
+		
+		bool bAlreadyPressed = true;
+		
+		for (const auto& Row : ButtonsMap)
+		{
+			if (Row.Value == false)
 			{
-				if (PressedButtons.Contains(HitComp)) return;
-			
-				PressedButtons.Add(HitComp);
-				
-				if (PressedButtons.Num() == 4)
-				{
-					if (WorldSystem)
-					{
-						WorldSystem->InitiateRandomEvent();
-					}
-					
-					//Reset TSet Array
-					PressedButtons.Empty();
-					
-					//Butonn Will Be Disabled After Done Pressing The Button
-					bCanPressed = false;
-					
-					if (IsValid(WorldSystem))
-					{
-						WorldSystem->OnUpdateLight.Broadcast(true);
-					}
-					
-					if (PC)
-					{
-						// Fixed Only Can Turn Camera Halfway Because Of Unlocking Mouse
-						// Lock the invisible mouse back to the center of the screen!
-						const FInputModeGameOnly GameOnlyMode;
-						PC->SetInputMode(GameOnlyMode);
-						
-						PC->bShowMouseCursor = false;
-					}
-					ExitFromInteractable();
-				}
+				bAlreadyPressed = false;
 			}
+		}
+		
+		if (bAlreadyPressed)
+		{
+			//Reset The Button TMap To Be Used Another Time
+			ButtonsMap.Empty();
+			
+			WorldSystem->InitiateRandomEvent();
+			WorldSystem->OnUpdateLight.Broadcast(true);
+			
+			ExitFromInteractable();
 		}
 	}
 }

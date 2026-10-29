@@ -28,48 +28,31 @@ void ULineTraceComponent::BeginPlay()
 	{
 		PC = Pawn->GetLocalViewingPlayerController();
 	}
+	
+	check(PC);
+	check(Pawn);
+	check(WorldSystem);
 }
 
 // Called every frame
 void ULineTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// Inside your Line Trace Component
-	if (Pawn)
-	{
-		if (PC)
-		{
-			FVector CameraLocation;
-			FRotator CameraRotation;
-		
-			PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-			const FVector TraceStart = CameraLocation;
-			const FVector TraceEnd = TraceStart + (CameraRotation.Vector() * LineTraceRange);
-		
-			FCollisionQueryParams CollisionQueryParams;
-			CollisionQueryParams.AddIgnoredActor(GetOwner());
 	
-			bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel2, CollisionQueryParams);
+	FVector CameraLocation;
+	FRotator CameraRotation;
+		
+	PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+	const FVector TraceStart = CameraLocation;
+	const FVector TraceEnd = TraceStart + (CameraRotation.Vector() * LineTraceRange);
+		
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(GetOwner());
+	
+	bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel2, CollisionQueryParams);
 			
-			if (bLastHit)
-			{
-				if (bHit)
-				{
-					WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
-				}
-				else
-				{
-					WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
-				}
-			}
-			//It Will Check Down Here and If bLastHit Still False It Will Not Call Function Above
-			//But If bLastHit Is True When Its Checking Down Here It Will Call The Function Above
-			//Reminder: This Is To Make Sure It Only Called Event Dispacther Once When bHit Is False
-			bLastHit = bHit;
-		}
-	}
+	WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
 }
 
 void ULineTraceComponent::CalledTraceLine() const

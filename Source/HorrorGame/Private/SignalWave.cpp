@@ -2,10 +2,8 @@
 
 
 #include "SignalWave.h"
-
 #include "EnhancedInputComponent.h"
 #include "WorldSystem.h"
-#include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 
 // Sets default values
@@ -16,9 +14,6 @@ ASignalWave::ASignalWave()
 	
 	KnobMesh = CreateDefaultSubobject<UStaticMeshComponent>("KnobMesh");
 	KnobMesh->SetupAttachment(MainMesh);
-	
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComp->SetupAttachment(MainMesh);
 	
 	ArrowComp = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
 	ArrowComp->SetupAttachment(KnobMesh);
@@ -41,8 +36,6 @@ void ASignalWave::Interactable_Implementation(AActor* InteractActor)
 {
 	Super::Interactable_Implementation(InteractActor);
 	
-	if (!IsValid(InteractActor)) return;
-	
 	//Now that EnableInput created the component, we cast it and bind.
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(this->InputComponent))
 	{
@@ -51,6 +44,11 @@ void ASignalWave::Interactable_Implementation(AActor* InteractActor)
 		EnhancedInput->BindAction(MouseRotateAction, ETriggerEvent::Triggered, this, &ASignalWave::RotateKnob);
 	}
 	
+	RandomRotationObjective();
+}
+
+void ASignalWave::RandomRotationObjective()
+{
 	//When Intreact It Randomize Knob Rotation Objective
 	const float RandomRotation = FMath::RandRange(-90.f, 90.f);
 	
@@ -85,10 +83,7 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		MouseKnobRotation = 0.0f;
 		
-		if (WorldSystem)
-		{
-			WorldSystem->InitiateRandomEvent();
-		}
+		WorldSystem->InitiateRandomEvent();
 		
 		ExitFromInteractable();
 	}

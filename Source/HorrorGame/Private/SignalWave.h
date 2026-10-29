@@ -28,9 +28,6 @@ protected:
 	TObjectPtr<UStaticMeshComponent> KnobMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
-	TObjectPtr<UCameraComponent> CameraComp;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
 	TObjectPtr<UArrowComponent> ArrowComp;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Inputs")
@@ -40,6 +37,7 @@ protected:
 	float KnobRotationSpeed = 5.0f;
 	
 private:
+	void RandomRotationObjective();
 	void RotateKnob(const FInputActionValue& Value);
 	
 	float MouseKnobRotation = 0.0f;

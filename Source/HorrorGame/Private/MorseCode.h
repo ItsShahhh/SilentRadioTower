@@ -45,9 +45,6 @@ protected:
 	TObjectPtr<USpotLightComponent> MorseLight;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UCameraComponent> CameraComponent;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAudioComponent> LightQueueAudio;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -98,30 +95,27 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TMap<TObjectPtr<UPrimitiveComponent>,int32>ButtonMap;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TMap<int32,bool>CorrectCodeMap;
-	
 private:
 	UPROPERTY()
 	TObjectPtr<UMorseCodeNumberWidget> MorseCodeNumberWidget;
 	
 	FTimerHandle MorseLightTimerHandle;
 	
-	FMorseSequence ChoosenMorseSignal;
-	
+	float BeepDuration = 0;
 	float NextSignal = 0;
 	
 	int32 CurrentMorseCode = 0;
 	int32 CurrentLightQueue = 0;
-	int32 AllSignalNum = 0;
 	
 	bool bIsMachineActive;
-	bool bCanPlayQueues = true;
+	bool bQueuesSound = true;
 	
 	void ActivateMorseLight();
+	void DeactivateMorseLight();
 	void RandomizeMorseCode();
 	void OnMouseClicked();
 	void CheckCorrectCode();
+	void PressedButton(const FHitResult& HitResult);
 
 public:	
 	// Called every frame

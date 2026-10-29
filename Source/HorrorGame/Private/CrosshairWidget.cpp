@@ -12,11 +12,10 @@ void UCrosshairWidget::NativeConstruct()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnUpdateCrosshair.AddDynamic(this, &UCrosshairWidget::UpdateCrosshair);
-		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UCrosshairWidget::ToggleWidget);
-	}
+	checkf(WorldSystem, TEXT("Failed To Get World System In Crosshair Widget"));
+	
+	WorldSystem->OnUpdateCrosshair.AddDynamic(this, &UCrosshairWidget::UpdateCrosshair);
+	WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UCrosshairWidget::ToggleWidget);
 }
 
 void UCrosshairWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)

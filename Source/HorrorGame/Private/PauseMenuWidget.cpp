@@ -11,25 +11,12 @@ void UPauseMenuWidget::NativeConstruct()
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UPauseMenuWidget::ToggleWidget);
-	}
+	checkf(WorldSystem, TEXT("Failed To Get World System In Pause Menu Widget"));
 	
-	if (ResumeButton)
-	{
-		ResumeButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickResumeButton);
-	}
-	
-	if (OptionButton)
-	{
-		OptionButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickOptionsButton);
-	}
-	
-	if (MainMenuButton)
-	{
-		MainMenuButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickMainMenuButton);
-	}
+	WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UPauseMenuWidget::ToggleWidget);
+	ResumeButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickResumeButton);
+	OptionButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickOptionsButton);
+	MainMenuButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickMainMenuButton);
 }
 
 void UPauseMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
@@ -53,16 +40,12 @@ void UPauseMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
 
 void UPauseMenuWidget::OnClickResumeButton() const
 {
-	if (!IsValid(WorldSystem)) return;
-	
 	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Resume);
 	WorldSystem->OnSwitchGameMode.Broadcast();
 }
 
 void UPauseMenuWidget::OnClickOptionsButton() const
 {
-	if (!IsValid(WorldSystem)) return;
-	
 	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Options);
 }
 
