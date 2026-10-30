@@ -116,6 +116,7 @@ private:
 	void OnMouseClicked();
 	void CheckCorrectCode();
 	void PressedButton(const FHitResult& HitResult);
+	void UpdateDigit(const int32 Index);
 
 public:	
 	// Called every frame

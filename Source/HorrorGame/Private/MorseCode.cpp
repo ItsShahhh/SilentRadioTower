@@ -121,47 +121,57 @@ void AMorseCode::OnMouseClicked()
 
 void AMorseCode::PressedButton(const FHitResult& HitResult)
 {
-	if (UPrimitiveComponent* PrimComp = HitResult.GetComponent())
+	const UPrimitiveComponent* PrimComp = HitResult.GetComponent();
+	if (!PrimComp) return;
+	
+	if (PrimComp == LightButton)
 	{
-		if (PrimComp == LightButton)
+		if (!bIsMachineActive)
 		{
-			if (!bIsMachineActive)
-			{
-				ActivateMorseLight();
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
-			}
+			ActivateMorseLight();
 		}
-		else if (PrimComp == ConfirmButton)
+		else
 		{
-			CheckCorrectCode();
-		}
-		else if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
-		{
-			CodeNumbers[*ButtonIndex] = (CodeNumbers[*ButtonIndex] + 1) % 10;
-				
-			switch (*ButtonIndex)
-			{
-			case 0:
-				MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
-				break;
-					
-			case 1:
-				MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
-				break;
-					
-			case 2:
-				MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CodeNumbers[*ButtonIndex]));
-				break;
-				
-			default:
-				break;
-			}
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("The Machine Is Already Active"));
 		}
 	}
+	else if (PrimComp == ConfirmButton)
+	{
+		CheckCorrectCode();
+	}
+	
+	if (const int32* ButtonIndex = ButtonMap.Find(PrimComp))
+	{
+		UpdateDigit(*ButtonIndex);
+	}
 }
+
+void AMorseCode::UpdateDigit(const int32 Index)
+{
+	if (!MorseCodeNumberWidget) return;
+	if (!CodeNumbers.IsValidIndex(Index)) return;
+	
+	CodeNumbers[Index] = (CodeNumbers[Index] + 1) % 10;
+	
+	switch (Index)
+	{
+	case 0:
+		MorseCodeNumberWidget->CodeNum1->SetText(FText::AsNumber(CodeNumbers[Index]));
+		break;
+					
+	case 1:
+		MorseCodeNumberWidget->CodeNum2->SetText(FText::AsNumber(CodeNumbers[Index]));
+		break;
+					
+	case 2:
+		MorseCodeNumberWidget->CodeNum3->SetText(FText::AsNumber(CodeNumbers[Index]));
+		break;
+				
+	default:
+		break;
+	}
+}
+
 
 void AMorseCode::ActivateMorseLight()
 {
