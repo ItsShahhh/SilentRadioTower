@@ -175,8 +175,11 @@ void AMorseCode::UpdateDigit(const int32 Index)
 
 void AMorseCode::ActivateMorseLight()
 {
+	if (!CodeObjective.IsValidIndex(CurrentMorseCode)) return;
+	
 	//Use Find() to get a pointer instead of copying the struct
 	const FMorseSequence* ChoosenMorseSignal = MorseSignalMap.Find(CodeObjective[CurrentMorseCode]);
+	if (!ChoosenMorseSignal) return;
 
 	if (!ChoosenMorseSignal->Signals.IsValidIndex(NextSignal))
 	{

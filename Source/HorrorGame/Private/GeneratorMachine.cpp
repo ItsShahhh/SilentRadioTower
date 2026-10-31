@@ -79,39 +79,35 @@ void AGeneratorMachine::OnMouseClicked()
 
 void AGeneratorMachine::CheckButtons(const FHitResult& HitResult)
 {
-	if (UPrimitiveComponent* HitComp = HitResult.GetComponent())
+	const UPrimitiveComponent* PrimComp = HitResult.GetComponent();
+	if (!PrimComp) return;
+	
+	bool* PressedBut = ButtonsMap.Find(PrimComp);
+	if (!PressedBut) return;
+	
+	//If The Current Button Already Been Press It Will Just Return
+	if (*PressedBut) return;
+	
+	//If Not Been Pressed The Current Button Boolean Will Be Set To True (Been Pressed)
+	*PressedBut = true;
+	
+	//Check If There's Still Button That Not Been Pressed In One Of The Button Map Value
+	//If There Is, It Will Just Return
+	for (const auto& Row : ButtonsMap)
 	{
-		if (!ButtonsMap.Contains(HitComp)) return;
-		
-		//If Click Button That Already Pressed It Will Just Return Instead Of Checking
-		if (ButtonsMap[HitComp]) return;
-		
-		if (bool* Pressed = ButtonsMap.Find(HitComp))
+		if (Row.Value == false)
 		{
-			*Pressed = true;
-		}
-		
-		bool bAlreadyPressed = true;
-		
-		for (const auto& Row : ButtonsMap)
-		{
-			if (Row.Value == false)
-			{
-				bAlreadyPressed = false;
-			}
-		}
-		
-		if (bAlreadyPressed)
-		{
-			//Reset The Button TMap To Be Used Another Time
-			ButtonsMap.Empty();
-			
-			WorldSystem->InitiateRandomEvent();
-			WorldSystem->OnUpdateLight.Broadcast(true);
-			
-			ExitFromInteractable();
+			return;
 		}
 	}
+		
+	//Reset The Button TMap To Be Used Another Time
+	ButtonsMap.Empty();
+			
+	WorldSystem->InitiateRandomEvent();
+	WorldSystem->OnUpdateLight.Broadcast(true);
+			
+	ExitFromInteractable();
 }
 
 void AGeneratorMachine::RandGeneratorPower(const ERandomEvent SelRanEvents)
