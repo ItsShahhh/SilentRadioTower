@@ -9,14 +9,22 @@
 
 class ULevelSequence;
 
+UENUM()
+enum class EJumpscareType : uint8
+{
+	VisionTrigger UMETA(DisplayName = "VisionTrigger"),
+	CollisionTrigger UMETA(DisplayName = "CollisionTrigger"),
+	SoundTrigger UMETA(DisplayName = "SoundTrigger"),
+};
+
 UCLASS()
-class HORRORGAME_API AJumpscareTrrigger : public AActor
+class HORRORGAME_API AJumpscareTrigger : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AJumpscareTrrigger();
+	AJumpscareTrigger();
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,19 +35,30 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent>SkeletalComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent>StaticMeshComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAudioComponent>AudioComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UBoxComponent>PreLoadBox;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UBoxComponent>CollisionBox;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
 	TSoftObjectPtr<USkeletalMesh>SkeletalMesh;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
 	TSoftObjectPtr<ULevelSequence>LevSeq;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	TSoftObjectPtr<UStaticMesh>StatMesh;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	TSoftObjectPtr<USoundBase>SoundBase;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bLookAtEnemy = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "JumpscareType")
+	EJumpscareType JumpscareType;
 	
 private:
-	void PreLoad();
 	void AssetLoad();
+	void ObjectJumpscare() const;
+	void SoundJumpscare();
 	void LookingAtJumpscare();
 	
 	UFUNCTION()
@@ -49,13 +68,20 @@ private:
 	TObjectPtr<APlayerCameraManager>PlayerCam;
 	UPROPERTY()
 	TObjectPtr<ULevelSequence>CachedSeq;
-	UPROPERTY()
-	TArray<FSoftObjectPath>ListToLoad;
 	
 	bool bAllLoaded = false;
 	
 	UFUNCTION()
-	void OnOverlapBegin(
+	void PreLoad(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	void CollisionTrigger(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
