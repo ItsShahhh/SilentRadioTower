@@ -7,7 +7,7 @@
 #include "UObject/Interface.h"
 #include "PlayerMode.generated.h"
 
-struct FDialogueLine;
+struct FDialogueData;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UPlayerMode : public UInterface

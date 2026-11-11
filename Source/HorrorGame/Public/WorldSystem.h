@@ -11,7 +11,7 @@
 enum class ERandomEvent : uint8;
 class UGameSettings;
 struct FQuestData;
-struct FDialogueLine;
+struct FDialogueData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchGameMode);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchUIMode);
@@ -20,7 +20,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleSettingWidget, const ESetti
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateRandomEvent, const ERandomEvent, RandomEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueLine&, DialogueData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueData&, DialogueData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
 /**
  * 

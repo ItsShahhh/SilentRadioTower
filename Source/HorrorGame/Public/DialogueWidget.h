@@ -8,8 +8,9 @@
 #include "Components/TextBlock.h"
 #include "DialogueWidget.generated.h"
 
+class UGameSubsystem;
 class UWorldSystem;
-struct FDialogueLine;
+struct FDialogueData;
 /**
  * 
  */
@@ -32,7 +33,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
-	FDialogueLine DialogueDataRef;
+	FDialogueData DialogueDataRef;
 	
 	FString FullDialogueString;
 	FString CurrentTypedString;
@@ -54,6 +55,6 @@ private:
 	
 public:
 	UFUNCTION()
-	void InitializeDialogue(const FDialogueLine& DialogueData);
+	void InitializeDialogue(const FDialogueData& DialogueData);
 	
 };

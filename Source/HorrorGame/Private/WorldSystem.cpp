@@ -18,9 +18,13 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 	
 	//Only Load The Global Table Once
 	LoadDialogueTable = GameSettings->GlobalDialogueTable.LoadSynchronous();
+	
+	checkf(LoadDialogueTable, TEXT("Failed To Get Dialogue Table From World System"));
 		
 	//Only Load The Global Table Once
 	LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
+	
+	checkf(LoadQuestTable, TEXT("Failed To Get Quest Table From World System"));
 }
 
 void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
@@ -32,7 +36,7 @@ void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
 	
 	//Find Row Based On Given Name
 	//Also Check If Found Dialogue Is Valid
-	if (const FDialogueLine* FoundDialogueLine = LoadDialogueTable->FindRow<FDialogueLine>(RowName, TEXT("Current Dialogue"),true))
+	if (const FDialogueData* FoundDialogueLine = LoadDialogueTable->FindRow<FDialogueData>(RowName, TEXT("Current Dialogue"),true))
 	{
 		//When Found The Name That Match The Row, It Will Be Broadcast To Dialogue Widget
 		OnProcessDialogue.Broadcast(*FoundDialogueLine);

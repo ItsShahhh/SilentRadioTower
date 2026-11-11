@@ -4,7 +4,7 @@
 #include "DialogueData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FDialogueLine : public FTableRowBase
+struct FDialogueData : public FTableRowBase
 {
 	GENERATED_BODY()
 	
