@@ -2,8 +2,10 @@
 
 
 #include "LineTraceComponent.h"
+
+#include "HorrorGamePlayerController.h"
 #include "InteractableInterface.h"
-#include "WorldSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 ULineTraceComponent::ULineTraceComponent()
@@ -20,23 +22,14 @@ void ULineTraceComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
-	
-	Pawn = Cast<APawn>(GetOwner());
-	
-	if (Pawn)
-	{
-		PC = Pawn->GetLocalViewingPlayerController();
-	}
-	
-	check(PC);
-	check(Pawn);
-	check(WorldSystem);
+	PC = Cast<AHorrorGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 // Called every frame
 void ULineTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	if (!ensureMsgf(PC, TEXT("Failed To Get Player Controller In Line Trace Component"))) return;
+	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	FVector CameraLocation;
@@ -52,7 +45,7 @@ void ULineTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	
 	bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_GameTraceChannel2, CollisionQueryParams);
 			
-	WorldSystem->OnUpdateCrosshair.Broadcast(bHit);
+	PC->ToggleCrosshair(bHit);
 }
 
 void ULineTraceComponent::CalledTraceLine() const

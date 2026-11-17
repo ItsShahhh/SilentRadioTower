@@ -16,8 +16,8 @@ void UQuestWidget::NativeConstruct()
 	
 	if (WorldSystem)
 	{
-		WorldSystem->OnUpdateQuest.AddDynamic(this, &UQuestWidget::InitializeQuest);
-		WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UQuestWidget::ToggleWidget);
+		//WorldSystem->OnUpdateQuest.AddDynamic(this, &UQuestWidget::InitializeQuest);
+		//WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UQuestWidget::ToggleWidget);
 	}
 }
 

@@ -29,7 +29,7 @@ void UDialogueWidget::InitializeDialogue(const FDialogueData& DialogueData)
 	//Enable Dialogue Widget Because We Make It Collapsed Inside Player Character When Added
 	SetVisibility(ESlateVisibility::Visible);
 	
-	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Dialogue);
+	//WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Dialogue);
 	
 	//Set All The Dialogue Data To This Everytime Starting The Dialogue
 	NPCNameTextBlock->SetText(DialogueData.SpeakerName);
@@ -95,8 +95,8 @@ FReply UDialogueWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, con
 		}
 		else
 		{
-			WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Resume);
-			WorldSystem->OnSwitchGameMode.Broadcast();
+			//WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::Resume);
+			//WorldSystem->OnSwitchGameMode.Broadcast();
 			
 			CloseDialogue();
 			return FReply::Handled().ClearUserFocus();

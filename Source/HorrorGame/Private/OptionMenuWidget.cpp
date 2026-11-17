@@ -5,7 +5,6 @@
 #include "ControlMenuWidget.h"
 #include "GameplayMenuWidget.h"
 #include "SettingMenuStates.h"
-#include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMaterialLibrary.h"
@@ -16,23 +15,18 @@ void UOptionMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	UserSettings = GEngine->GetGameUserSettings();
-	
-	checkf(WorldSystem, TEXT("Failed To Get World System In Option Widget"));
 	checkf(UserSettings, TEXT("Failed To Get User Settings In Option Widget"));
 	 
 	const ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	CameraComp = Player->FindComponentByClass<UCameraComponent>();
-	
-	checkf(CameraComp, TEXT("Failed To Get Camera Component In Option Widget"));
-	
-	WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UOptionMenuWidget::ToggleWidget);
+	if (ensureAlwaysMsgf(Player, TEXT("Failed To Get Player Character In Option Menu WIdget")))
+	{
+		CameraComp = Player->FindComponentByClass<UCameraComponent>();
+		checkf(CameraComp, TEXT("Failed To Get Camera Component In Option Widget"));
+	}
 	
 	ControlMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::ControlMenu);
-	
 	AudioMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::AudioMenu);
-	
 	GameplayMenuButton->OnClicked.AddDynamic(this, &UOptionMenuWidget::GameplayMenu);
 		
 	//Chromatic Abberation
@@ -68,23 +62,6 @@ void UOptionMenuWidget::NativeConstruct()
 	}
 }
 
-void UOptionMenuWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
-{
-	switch (CurrentSettingMenus)
-	{
-		case ESettingMenus::Options:
-		SetVisibility(ESlateVisibility::Visible);
-		break;
-		
-		case ESettingMenus::BackMenu:
-		SetVisibility(ESlateVisibility::Collapsed);
-		break;
-		
-		default:
-		break;
-	}
-}
-
 void UOptionMenuWidget::ControlMenu() const
 {
 	MenuSwitch->SetActiveWidgetIndex(0);
@@ -102,19 +79,19 @@ void UOptionMenuWidget::GameplayMenu() const
 
 void UOptionMenuWidget::BackMenu() const
 {
-	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::BackMenu);
+	OnToggleOptionWidget.Broadcast(ESettingMenus::BackMenu);
 }
 
 void UOptionMenuWidget::SetMouseSensitivity(const float NewMouseSens) const
 {
-	ControlMenuUserCreated->OnUpdateNewSens.Broadcast(NewMouseSens);
-	
 	FNumberFormattingOptions NumberFormattingOptions;
 	NumberFormattingOptions.MinimumFractionalDigits = 2;
 	NumberFormattingOptions.MaximumFractionalDigits = 2;
 	
 	const FText MouseSensValue = FText::AsNumber(NewMouseSens, &NumberFormattingOptions);
 	ControlMenuUserCreated->MouseSensitivityValue->SetText(MouseSensValue);
+	
+	OnChangedSensValue.Broadcast(NewMouseSens);
 }
 
 void UOptionMenuWidget::ToggleChromaticAbberation(const bool OnChecked) const

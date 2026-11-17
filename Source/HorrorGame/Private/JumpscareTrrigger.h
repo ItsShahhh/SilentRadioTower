@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "JumpscareTrrigger.generated.h"
 
+struct FStreamableHandle;
 class ULevelSequence;
 
 UENUM()
@@ -57,7 +58,7 @@ protected:
 	
 private:
 	void AssetLoad();
-	void ObjectJumpscare() const;
+	void ObjectJumpscare();
 	void SoundJumpscare();
 	void LookingAtJumpscare();
 	
@@ -68,6 +69,8 @@ private:
 	TObjectPtr<APlayerCameraManager>PlayerCam;
 	UPROPERTY()
 	TObjectPtr<ULevelSequence>CachedSeq;
+	
+	TSharedPtr<FStreamableHandle>PreLoadHandle;
 	
 	bool bAllLoaded = false;
 	

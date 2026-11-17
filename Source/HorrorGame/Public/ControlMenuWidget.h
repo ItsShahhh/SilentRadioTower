@@ -8,9 +8,6 @@
 #include "Components/TextBlock.h"
 #include "ControlMenuWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateNewSens, const float, NewMouseSensitivity);
-
-class UWorldSystem;
 /**
  * 
  */
@@ -20,8 +17,6 @@ class HORRORGAME_API UControlMenuWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	FOnUpdateNewSens OnUpdateNewSens;
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MouseSensitivityText;
 	
@@ -30,4 +25,5 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USlider> MouseSensitivitySlider;
+	
 };

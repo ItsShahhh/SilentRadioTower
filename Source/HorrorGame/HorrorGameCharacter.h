@@ -9,13 +9,9 @@
 #include "Logging/LogMacros.h"
 #include "HorrorGameCharacter.generated.h"
 
+class AHorrorGamePlayerController;
 class UGameplayMenuWidget;
 class UAudioMenuWidget;
-class UControlMenuWidget;
-class UWorldSystem;
-class UOptionMenuWidget;
-class UPauseMenuWidget;
-class UCrosshairWidget;
 class UQuestWidget;
 class UDialogueWidget;
 class ULineTraceComponent;
@@ -66,9 +62,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* InteractAction;
 	
-	UPROPERTY(EditAnywhere, Category ="Input")
-	UInputAction* TogglePauseMenuAction;
-	
 	UPROPERTY(EditAnywhere, Category ="Components")
 	ULineTraceComponent* LineTraceComponent;
 
@@ -103,15 +96,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
 	TSubclassOf<UQuestWidget> QuestWidgetClass;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TSubclassOf<UCrosshairWidget> CrosshairWidgetClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TSubclassOf<UPauseMenuWidget> PauseMenuWidgetClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
 	float CameraSpeed = 5.0f;
 
@@ -119,38 +103,18 @@ private:
 	FRotator CurrentCameraRotation;
 	FRotator TargetCameraRotation;
 	
-	FInputModeGameOnly GameMode;
-	FInputModeUIOnly UIMode;
 	FTimerHandle DialogueTimerHandle;
 	
 	bool bDialogueMode = false;
-	bool bIsPauseMenuToggle = false;
-	bool bIsOptionMenuToggle = false;
 	
-	float BasedSensitivity = 1.0f;
-	
-	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
-	
-	UPROPERTY()
-	TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
 	UPROPERTY()
 	TObjectPtr<UDialogueWidget> DialogueWidget;
 	UPROPERTY()
 	TObjectPtr<UQuestWidget> QuestWidget;
 	UPROPERTY()
-	TObjectPtr<UCrosshairWidget> CrosshairWidget;
-	UPROPERTY()
-	TObjectPtr<UPauseMenuWidget> PauseMenuWidget;
+	TObjectPtr<AHorrorGamePlayerController> PC;
 	
-	UFUNCTION()
-	void ChangeSensitivity(const float NewSensValue);
-	UFUNCTION()
-	void GameModeState() const;
-	UFUNCTION()
-	void UIModeState() const;
 	void Interact();
-	void TogglePauseMenu();
 	
 public:
 	AHorrorGameCharacter();
@@ -164,6 +128,5 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void LookAtActor_Implementation(const AActor* LookAtActor) override;
-	virtual void ToggleCrosshair_Implementation(const bool bToggleCrosshair) override;
 };
 

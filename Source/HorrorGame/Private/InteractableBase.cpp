@@ -2,6 +2,7 @@
 
 
 #include "InteractableBase.h"
+#include "HorrorGamePlayerController.h"
 #include "WorldSystem.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,13 +27,7 @@ void AInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Pawn = Cast<APawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-	
-	checkf(Pawn, TEXT("Failed To Get Pawn In Interactable Base"));
-	
-	PC = Cast<APlayerController>(Pawn->GetController());
-	
-	checkf(PC, TEXT("Failed To Get Player Controller In Interactable Base"));
+	PC = Cast<AHorrorGamePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	
 	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
 	
@@ -48,21 +43,12 @@ void AInteractableBase::Tick(float DeltaTime)
 void AInteractableBase::Interactable_Implementation(AActor* InteractActor)
 {
 	if (!IsValid(InteractActor)) return;
+	if (!ensureAlwaysMsgf(PC, TEXT("Failed To Get Player Controller In Interactable Base"))) return;
 	
 	InteractingActor = InteractActor;
 	InteractingActor->SetActorHiddenInGame(true);
 	
-	//Change Camera
-	PC->SetViewTargetWithBlend(this, BlendSpeed, VTBlend_Linear);
-
-	//SWAP INPUT (Freeze Player, Wake Up Machine)
-	Pawn->DisableInput(PC);
-	this->EnableInput(PC);
-	
-	if (InteractActor->Implements<UInteractableInterface>())
-	{
-		Execute_ToggleCrosshair(InteractActor, false);
-	}
+	PC->InteractingMode(this, BlendSpeed);
 	
 	GetWorldTimerManager().SetTimer(ObjectiveTimerHandle, [this]
 	{
@@ -77,20 +63,6 @@ void AInteractableBase::ExitFromInteractable()
 {
 	InteractingActor->SetActorHiddenInGame(false);
 	
-	// Fixed Only Can Turn Camera Halfway Because Of Unlocking Mouse
-	// Lock the invisible mouse back to the center of the screen!
-	const FInputModeGameOnly GameOnlyMode;
-	PC->SetInputMode(GameOnlyMode);
-						
-	PC->bShowMouseCursor = false;
-	
-	PC->SetViewTargetWithBlend(Pawn, BlendSpeed, VTBlend_Linear);
-	this->DisableInput(PC);
-	Pawn->EnableInput(PC);
-	
-	if (InteractingActor->Implements<UInteractableInterface>())
-	{
-		Execute_ToggleCrosshair(InteractingActor, true);
-	}
+	PC->UnInteractingMode(this, BlendSpeed);
 }
 

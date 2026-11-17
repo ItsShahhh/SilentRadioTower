@@ -3,6 +3,7 @@
 
 #include "GeneratorMachine.h"
 #include "EnhancedInputComponent.h"
+#include "HorrorGamePlayerController.h"
 #include "RandomEvent.h"
 #include "WorldSystem.h"
 

@@ -10,9 +10,9 @@
 /**
  * 
  */
-
 enum class ESettingMenus : uint8;
-class UWorldSystem;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTogglePauseMenu, ESettingMenus, CurrentSettingMenus);
 
 UCLASS()
 class HORRORGAME_API UPauseMenuWidget : public UUserWidget
@@ -41,16 +41,13 @@ protected:
 	TObjectPtr<UTextBlock> MainMenuText;
 	
 private:
-	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
-	
 	UFUNCTION()
 	void OnClickResumeButton() const;
 	UFUNCTION()
 	void OnClickOptionsButton() const;
 	UFUNCTION()
 	void OnClickMainMenuButton() const;
-	UFUNCTION()
-	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	
+public:
+	FOnTogglePauseMenu OnTogglePauseMenu;
 };

@@ -31,10 +31,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
-	UFUNCTION()
+public:
 	void UpdateCrosshair(bool bIsInteracting) const;
-	
-	UFUNCTION()
-	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	
 };

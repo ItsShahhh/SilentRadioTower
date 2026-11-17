@@ -52,48 +52,43 @@ void AJumpscareTrigger::BeginPlay()
 	{
 	case EJumpscareType::VisionTrigger:
 		
+		//Cached Player Camera
+		PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		if (!ensureAlwaysMsgf(PlayerCam, TEXT("Failed To Find PLayer Camera In Jumpscare Trigger"))) return;
+		
+		if (!ensureAlwaysMsgf(!SkeletalMesh.IsNull(), TEXT("Failed To Find Path Skeletal Mesh In Jumpscare Trigger"))) return;
+		if (!ensureAlwaysMsgf(!LevSeq.IsNull(), TEXT("Failed To Find Path Level Sequence In Jumpscare Trigger"))) return;
+		
 		//If Look At Enemy True That Mean We Are Using The Tick
 		//If Not The Tick Will Be Disabled
 		SetActorTickEnabled(true);
-		
-		//Cached Player Camera
-		PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 		
 		//Remove Component That We Don't Use For That Jumpscare
 		StaticMeshComp->DestroyComponent();
 		AudioComp->DestroyComponent();
 		CollisionBox->DestroyComponent();
-		
-		checkf(PlayerCam, TEXT("Failed To Find PLayer Camera In Jumpscare Trigger"));
-		checkf(!SkeletalMesh.IsNull(), TEXT("Failed To Find Path Skeletal Mesh In Jumpscare Trigger"));
-		checkf(!LevSeq.IsNull(), TEXT("Failed To Find Path Level Sequence In Jumpscare Trigger"));
 		break;
 		
 	case EJumpscareType::CollisionTrigger:
 		
+		if (!ensureAlwaysMsgf(!StatMesh.IsNull(), TEXT("Failed To Find Path Static Mesh In Jumpscare Trigger"))) return;
+		if (!ensureAlwaysMsgf(!SoundBase.IsNull(), TEXT("Failed To Find Path Sound For Collision Trigger In Jumpscare Trigger"))) return;
+		
 		//Remove Component That We Don't Use For That Jumpscare
 		SkeletalComp->DestroyComponent();
-		
-		checkf(!StatMesh.IsNull(), TEXT("Failed To Find Path Static Mesh In Jumpscare Trigger"));
-		checkf(!SoundBase.IsNull(), TEXT("Failed To Find Path Sound For Collision Trigger In Jumpscare Trigger"));
 		break;
 		
 	case EJumpscareType::SoundTrigger:
 		
+		if (!ensureAlwaysMsgf(!SoundBase.IsNull(), TEXT("Failed To Find Path Sound For Sound Trigger In Jumpscare Trigger"))) return;
+		
 		//Remove Component That We Don't Use For That Jumpscare
 		SkeletalComp->DestroyComponent();
 		StaticMeshComp->DestroyComponent();
-		
-		checkf(!SoundBase.IsNull(), TEXT("Failed To Find Path Sound For Sound Trigger In Jumpscare Trigger"));
 		break;
 		
 	default:
 		break;
-	}
-	
-	if (CollisionBox)
-	{
-		CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AJumpscareTrigger::CollisionTrigger);
 	}
 	
 	PreLoadBox->OnComponentBeginOverlap.AddDynamic(this, &AJumpscareTrigger::PreLoad);
@@ -142,7 +137,7 @@ void AJumpscareTrigger::PreLoad(UPrimitiveComponent* OverlappedComp, AActor* Oth
 			break;
 		}
 	
-		UAssetManager::GetStreamableManager().RequestAsyncLoad(ListToLoad, FStreamableDelegate::CreateUObject(this, &AJumpscareTrigger::AssetLoad));
+		PreLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(ListToLoad, FStreamableDelegate::CreateUObject(this, &AJumpscareTrigger::AssetLoad));
 	}
 }
 
@@ -153,11 +148,11 @@ void AJumpscareTrigger::AssetLoad()
 	case EJumpscareType::VisionTrigger:
 		{
 			ULevelSequence* Seq = LevSeq.Get();
-			if (!Seq) return;
+			if (!ensureAlwaysMsgf(Seq, TEXT("Failed To Get Level Sequence Asset Load In Jumpscare Trigger"))) return;
 			CachedSeq = Seq;
 	
 			USkeletalMesh* Mesh = SkeletalMesh.Get();
-			if (!Mesh) return;
+			if (!ensureAlwaysMsgf(Mesh, TEXT("Failed To Get Skeletal Mesh Asset Load In Jumpscare Trigger"))) return;
 			SkeletalComp->SetSkeletalMeshAsset(Mesh);
 			
 			bAllLoaded = true;
@@ -167,11 +162,11 @@ void AJumpscareTrigger::AssetLoad()
 	case EJumpscareType::CollisionTrigger:
 		{
 			USoundBase* Sound = SoundBase.Get();
-			if (!Sound) return;
+			if (!ensureAlwaysMsgf(Sound, TEXT("Failed To Get Sound Asset Load In Jumpscare Trigger"))) return;
 			AudioComp->SetSound(Sound);
 			
 			UStaticMesh* StaticMesh = StatMesh.Get();
-			if (!StaticMesh) return;
+			if (!ensureAlwaysMsgf(StaticMesh, TEXT("Failed To Get Static Mesh Asset Load In Jumpscare Trigger"))) return;
 			StaticMeshComp->SetStaticMesh(StaticMesh);
 			break;
 		}
@@ -179,13 +174,20 @@ void AJumpscareTrigger::AssetLoad()
 	case EJumpscareType::SoundTrigger:
 		{
 			USoundBase* Sound = SoundBase.Get();
-			if (!Sound) return;
+			if (!ensureAlwaysMsgf(Sound, TEXT("Failed To Get Sound Asset Load In Jumpscare Trigger"))) return;
 			AudioComp->SetSound(Sound);
 			break;
 		}
 		
 	default:
 		break;
+	}
+	
+	//This Is For Audio and Object Trigger
+	//Only Bind This When Asset Is Load To Prevent Player From Overlap With Collision Box Before Asset Load 
+	if (CollisionBox)
+	{
+		CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AJumpscareTrigger::CollisionTrigger);
 	}
 }
 
@@ -214,7 +216,7 @@ void AJumpscareTrigger::CollisionTrigger(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void AJumpscareTrigger::ObjectJumpscare() const
+void AJumpscareTrigger::ObjectJumpscare()
 {
 	StaticMeshComp->SetSimulatePhysics(true);
 	AudioComp->Play();
@@ -222,6 +224,10 @@ void AJumpscareTrigger::ObjectJumpscare() const
 	//Static Mesh Is Stayed In The Level To Make Sure It Doesn't Take Too Much RAM We Remove The Not Essential Components
 	PreLoadBox->DestroyComponent();
 	CollisionBox->DestroyComponent();
+	
+	if (!ensureAlwaysMsgf(PreLoadHandle, TEXT("Failed To Get Load Asset In Jumpscare Trigger"))) return;
+	PreLoadHandle->ReleaseHandle();
+	PreLoadHandle.Reset();
 }
 
 void AJumpscareTrigger::SoundJumpscare()
@@ -246,15 +252,10 @@ void AJumpscareTrigger::LookingAtJumpscare()
 	{
 		const FMovieSceneSequencePlaybackSettings PlaybackSettings;
 		ALevelSequenceActor* OutSequenceActor = nullptr;
+		ULevelSequencePlayer* PlaySeq = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(),CachedSeq, PlaybackSettings, OutSequenceActor);
 		
-		ULevelSequencePlayer* PlaySeq = ULevelSequencePlayer::CreateLevelSequencePlayer(
-			GetWorld(), CachedSeq, PlaybackSettings, OutSequenceActor);
-		
-		if (PlaySeq)
-		{
-			PlaySeq->Play();
-			PlaySeq->OnFinished.AddDynamic(this, &AJumpscareTrigger::DestroyJumpscare);
-		}
+		PlaySeq->Play();
+		PlaySeq->OnFinished.AddDynamic(this, &AJumpscareTrigger::DestroyJumpscare);
 	}
 }
 

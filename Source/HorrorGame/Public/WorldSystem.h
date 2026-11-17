@@ -13,10 +13,7 @@ class UGameSettings;
 struct FQuestData;
 struct FDialogueData;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchGameMode);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchUIMode);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateLight, const bool, ToggleLight);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleSettingWidget, const ESettingMenus, SettingEnum);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateRandomEvent, const ERandomEvent, RandomEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
@@ -62,9 +59,6 @@ public:
 	FOnUpdateQuest OnUpdateQuest;
 	FOnUpdateCrosshair OnUpdateCrosshair;
 	FOnCompletedQuest OnCompletedQuest;
-	FOnToggleSettingWidget OnToggleSettingWidget;
-	FOnSwitchGameMode OnSwitchGameMode;
-	FOnSwitchUIMode OnSwitchUIMode;
 	FOnUpdateRandomEvent OnUpdateRandomEvent;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

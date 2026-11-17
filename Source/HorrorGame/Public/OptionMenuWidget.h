@@ -18,7 +18,10 @@ class UGameplayMenuWidget;
 class UAudioMenuWidget;
 class UControlMenuWidget;
 enum class ESettingMenus : uint8;
-class UWorldSystem;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleOptionWidget, ESettingMenus, CurrentSettingMenus);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangedSensValue, float, NewSensValue);
+
 
 UCLASS()
 class HORRORGAME_API UOptionMenuWidget : public UUserWidget
@@ -57,14 +60,10 @@ protected:
 
 private:
 	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
-	UPROPERTY()
 	TObjectPtr<UGameUserSettings> UserSettings;
 	UPROPERTY()
 	TObjectPtr<UCameraComponent> CameraComp;
 	
-	UFUNCTION()
-	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	UFUNCTION()
 	void ControlMenu() const;
 	UFUNCTION()
@@ -89,6 +88,9 @@ private:
 	void ToggleMotionBlur(const bool OnChecked) const;
 	
 public:
+	FOnToggleOptionWidget OnToggleOptionWidget;
+	FOnChangedSensValue OnChangedSensValue;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UControlMenuWidget> ControlMenuUserCreated;
 	
@@ -97,5 +99,4 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UGameplayMenuWidget> GameplayMenuUserCreated;
-	
 };

@@ -2,11 +2,11 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "InteractableInterface.h"
 #include "GameFramework/Actor.h"
 #include "InteractableBase.generated.h"
 
+class AHorrorGamePlayerController;
 class UCameraComponent;
 class UWorldSystem;
 
@@ -25,10 +25,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> RootComp;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MainMesh;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> MainCamera;
 	
@@ -36,7 +34,7 @@ protected:
 	TObjectPtr<UWorldSystem> WorldSystem;
 	
 	UPROPERTY()
-	TObjectPtr<APlayerController> PC;
+	TObjectPtr<AHorrorGamePlayerController> PC;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BlendSpeed = 1.0f;

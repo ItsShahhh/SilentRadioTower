@@ -3,37 +3,10 @@
 
 #include "CrosshairWidget.h"
 #include "DialogueWidget.h"
-#include "SettingMenuStates.h"
-#include "WorldSystem.h"
 
 void UCrosshairWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
-	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
-	
-	checkf(WorldSystem, TEXT("Failed To Get World System In Crosshair Widget"));
-	
-	WorldSystem->OnUpdateCrosshair.AddDynamic(this, &UCrosshairWidget::UpdateCrosshair);
-	WorldSystem->OnToggleSettingWidget.AddDynamic(this, &UCrosshairWidget::ToggleWidget);
-}
-
-void UCrosshairWidget::ToggleWidget(const ESettingMenus CurrentSettingMenus)
-{
-	switch (CurrentSettingMenus)
-	{
-		case ESettingMenus::PauseMenu:
-		case ESettingMenus::Dialogue:
-		SetVisibility(ESlateVisibility::Collapsed);
-		break;
-		
-		case ESettingMenus::Resume:
-		SetVisibility(ESlateVisibility::Visible);
-		break;
-		
-		default:
-		break;
-	}
 }
 
 void UCrosshairWidget::UpdateCrosshair(const bool bIsInteracting) const
@@ -47,5 +20,3 @@ void UCrosshairWidget::UpdateCrosshair(const bool bIsInteracting) const
 		InnerCircle->SetOpacity(0.0f);
 	}
 }
-
-

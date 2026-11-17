@@ -2,11 +2,9 @@
 
 
 #include "Satelite.h"
-
 #include "EnhancedInputComponent.h"
 #include "RandomEvent.h"
 #include "WorldSystem.h"
-#include "Camera/CameraComponent.h"
 
 // Sets default values
 ASatelite::ASatelite()

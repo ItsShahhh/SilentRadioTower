@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "GeneratorMachine.h"
+#include "HorrorGamePlayerController.h"
 #include "MorseCodeNumberWidget.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextBlock.h"

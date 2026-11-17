@@ -11,14 +11,11 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HorrorGame.h"
+#include "HorrorGamePlayerController.h"
 #include "LineTraceComponent.h"
-#include "OptionMenuWidget.h"
-#include "PauseMenuWidget.h"
 #include "QuestWidget.h"
-#include "WorldSystem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/StaticMeshActor.h"
-#include "SettingMenuStates.h"
 
 AHorrorGameCharacter::AHorrorGameCharacter()
 {
@@ -61,15 +58,9 @@ void AHorrorGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	WorldSystem = GetWorld()->GetSubsystem<UWorldSystem>();
+	PC = Cast<AHorrorGamePlayerController>(GetController());
 	
-	if (WorldSystem)
-	{
-		WorldSystem->OnSwitchGameMode.AddDynamic(this, &AHorrorGameCharacter::GameModeState);
-		WorldSystem->OnSwitchUIMode.AddDynamic(this, &AHorrorGameCharacter::UIModeState);
-	}
-	
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	if (PC)
 	{
 		DialogueWidget = CreateWidget<UDialogueWidget>(PC, DialogueWidgetClass);
 		
@@ -85,30 +76,6 @@ void AHorrorGameCharacter::BeginPlay()
 		{
 			QuestWidget->AddToViewport();
 			QuestWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		
-		CrosshairWidget = CreateWidget<UCrosshairWidget>(PC, CrosshairWidgetClass);
-		
-		if (CrosshairWidget)
-		{
-			CrosshairWidget->AddToViewport();
-		}
-		
-		PauseMenuWidget = CreateWidget<UPauseMenuWidget>(PC, PauseMenuWidgetClass);
-		
-		if (PauseMenuWidget)
-		{
-			PauseMenuWidget->AddToViewport();
-			PauseMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		
-		OptionMenuWidget = CreateWidget<UOptionMenuWidget>(PC, OptionMenuWidgetClass);
-		
-		if (OptionMenuWidget)
-		{
-			OptionMenuWidget->AddToViewport();
-			OptionMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
-			OptionMenuWidget->ControlMenuUserCreated->OnUpdateNewSens.AddDynamic(this, &AHorrorGameCharacter::ChangeSensitivity);
 		}
 	}
 }
@@ -150,9 +117,6 @@ void AHorrorGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		
 		//Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AHorrorGameCharacter::Interact);
-		
-		//Toggle Pause Menu
-		EnhancedInputComponent->BindAction(TogglePauseMenuAction, ETriggerEvent::Started, this, &AHorrorGameCharacter::TogglePauseMenu);
 	}
 	else
 	{
@@ -185,14 +149,9 @@ void AHorrorGameCharacter::DoAim(float Yaw, float Pitch)
 	if (GetController())
 	{
 		// pass the rotation inputs
-		AddControllerYawInput(Yaw * BasedSensitivity);
-		AddControllerPitchInput(Pitch * BasedSensitivity);
+		AddControllerYawInput(Yaw * PC->FinalSensValue);
+		AddControllerPitchInput(Pitch * PC->FinalSensValue);
 	}
-}
-
-void AHorrorGameCharacter::ChangeSensitivity(const float NewSensValue)
-{
-	BasedSensitivity = NewSensValue;
 }
 
 void AHorrorGameCharacter::DoMove(float Right, float Forward)
@@ -228,8 +187,6 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 {
 	if (!IsValid(LookAtActor)) return;
 	
-	UIModeState();
-	
 	//Create Empty Vector
 	FVector TargetLookAt;
 	
@@ -245,48 +202,4 @@ void AHorrorGameCharacter::LookAtActor_Implementation(const AActor* LookAtActor)
 	
 	TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(FirstPersonCameraComponent->GetComponentLocation(), TargetLookAt);
 	bDialogueMode = true;
-}
-
-void AHorrorGameCharacter::ToggleCrosshair_Implementation(const bool bToggleCrosshair)
-{
-	if (!IsValid(CrosshairWidget)) return;
-	
-	if (bToggleCrosshair)
-	{
-		CrosshairWidget->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		CrosshairWidget->SetVisibility(ESlateVisibility::Collapsed);
-	}
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void AHorrorGameCharacter::TogglePauseMenu()
-{
-	if (!IsValid(WorldSystem)) return;
-	
-	UIModeState();
-	
-	WorldSystem->OnToggleSettingWidget.Broadcast(ESettingMenus::PauseMenu);
-}
-
-void AHorrorGameCharacter::GameModeState() const
-{
-	if (!IsValid(GetLocalViewingPlayerController())) return;
-	
-	GetLocalViewingPlayerController()->SetInputMode(GameMode);
-	GetLocalViewingPlayerController()->bShowMouseCursor = false;
-	GetLocalViewingPlayerController()->SetIgnoreMoveInput(false);
-	GetLocalViewingPlayerController()->SetIgnoreLookInput(false);
-}
-
-void AHorrorGameCharacter::UIModeState() const
-{
-	if (!IsValid(GetLocalViewingPlayerController())) return;
-	
-	GetLocalViewingPlayerController()->SetInputMode(UIMode);
-	GetLocalViewingPlayerController()->bShowMouseCursor = true;
-	GetLocalViewingPlayerController()->SetIgnoreMoveInput(true);
-	GetLocalViewingPlayerController()->SetIgnoreLookInput(true);
 }
