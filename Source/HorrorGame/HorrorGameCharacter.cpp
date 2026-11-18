@@ -3,7 +3,6 @@
 #include "HorrorGameCharacter.h"
 #include "ControlMenuWidget.h"
 #include "CrosshairWidget.h"
-#include "DialogueWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -62,14 +61,6 @@ void AHorrorGameCharacter::BeginPlay()
 	
 	if (PC)
 	{
-		DialogueWidget = CreateWidget<UDialogueWidget>(PC, DialogueWidgetClass);
-		
-		if (DialogueWidget)
-		{
-			DialogueWidget->AddToViewport();
-			DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		
 		QuestWidget = CreateWidget<UQuestWidget>(PC, QuestWidgetClass);
 		
 		if (QuestWidget)

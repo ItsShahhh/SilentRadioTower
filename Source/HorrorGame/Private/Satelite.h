@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableBase.h"
+#include "PuzzleInteractables.h"
 #include "GameFramework/Actor.h"
 #include "Satelite.generated.h"
 
@@ -14,7 +14,7 @@ class UInputAction;
 class UWorldSystem;
 
 UCLASS()
-class ASatelite : public AInteractableBase
+class ASatelite : public APuzzleInteractables
 {
 	GENERATED_BODY()
 	

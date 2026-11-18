@@ -2,9 +2,7 @@
 
 
 #include "WorldSystem.h"
-#include "DialogueData.h"
 #include "GameSettings.h"
-#include "QuestData.h"
 #include "RandomEvent.h"
 
 void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -15,64 +13,6 @@ void UWorldSystem::Initialize(FSubsystemCollectionBase& Collection)
 	GameSettings =  GetDefault<UGameSettings>();
 	
 	checkf(GameSettings, TEXT("Failed To Get GameSettings From World System"));
-	
-	//Only Load The Global Table Once
-	LoadDialogueTable = GameSettings->GlobalDialogueTable.LoadSynchronous();
-	
-	checkf(LoadDialogueTable, TEXT("Failed To Get Dialogue Table From World System"));
-		
-	//Only Load The Global Table Once
-	LoadQuestTable = GameSettings->GlobalQuestTable.LoadSynchronous();
-	
-	checkf(LoadQuestTable, TEXT("Failed To Get Quest Table From World System"));
-}
-
-void UWorldSystem::PlayDialogueData(const FGameplayTag DialogueTag) const
-{
-	if (!DialogueTag.IsValid()) return;
-	
-	//Convert Dialogue Tag To FName To Use For Finding Row
-	const FName& RowName = DialogueTag.GetTagName();
-	
-	//Find Row Based On Given Name
-	//Also Check If Found Dialogue Is Valid
-	if (const FDialogueData* FoundDialogueLine = LoadDialogueTable->FindRow<FDialogueData>(RowName, TEXT("Current Dialogue"),true))
-	{
-		//When Found The Name That Match The Row, It Will Be Broadcast To Dialogue Widget
-		OnProcessDialogue.Broadcast(*FoundDialogueLine);
-	}
-}
-
-void UWorldSystem::StartQuest(const FGameplayTag QuestTag)
-{
-	if (!QuestTag.IsValid()) return;
-	
-	const FName& RowName = QuestTag.GetTagName();
-	
-	FoundQuestData = LoadQuestTable->FindRow<FQuestData>(RowName, TEXT("Current Quest"),true);
-	
-	if (FoundQuestData)
-	{
-		ActiveQuest.ActiveQuestTag = FoundQuestData->QuestTag;
-		ActiveQuest.NextActiveQuest = FoundQuestData->NextQuest;
-			
-		OnUpdateQuest.Broadcast(*FoundQuestData);
-	}
-}
-
-void UWorldSystem::CompletedQuest()
-{
-	if (!FoundQuestData) return;
-	if (!ActiveQuest.ActiveQuestTag.IsValid())	return;
-	
-	//When Completed Quest It Will BroadCast an Event Dispacther To Check for World Base Event To Activate
-	OnCompletedQuest.Broadcast(ActiveQuest.ActiveQuestTag);
-	
-	//Active Next Quest When Completed The Active Quest
-	if (ActiveQuest.ActiveQuestTag.MatchesTag(FoundQuestData->QuestTag))
-	{
-		StartQuest(ActiveQuest.NextActiveQuest);
-	}
 }
 
 void UWorldSystem::InitiateRandomEvent()

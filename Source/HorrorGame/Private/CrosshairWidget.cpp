@@ -2,7 +2,6 @@
 
 
 #include "CrosshairWidget.h"
-#include "DialogueWidget.h"
 
 void UCrosshairWidget::NativeConstruct()
 {

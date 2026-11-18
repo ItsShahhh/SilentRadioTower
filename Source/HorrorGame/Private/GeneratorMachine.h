@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableBase.h"
+#include "PuzzleInteractables.h"
 #include "GeneratorMachine.generated.h"
 
 enum class ERandomEvent : uint8;
@@ -13,7 +13,7 @@ class UInputAction;
  * 
  */
 UCLASS()
-class AGeneratorMachine : public AInteractableBase
+class AGeneratorMachine : public APuzzleInteractables
 {
 	GENERATED_BODY()
 	

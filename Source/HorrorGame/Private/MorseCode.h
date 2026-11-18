@@ -2,7 +2,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "InteractableBase.h"
+#include "PuzzleInteractables.h"
 #include "MorseCode.generated.h"
 
 class UCameraComponent;
@@ -29,7 +29,7 @@ struct FMorseSequence
 };
 
 UCLASS()
-class AMorseCode : public AInteractableBase
+class AMorseCode : public APuzzleInteractables
 {
 	GENERATED_BODY()
 	

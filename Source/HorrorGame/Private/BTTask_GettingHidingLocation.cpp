@@ -38,7 +38,7 @@ EBTNodeResult::Type UBTTask_GettingHidingLocation::ExecuteTask(UBehaviorTreeComp
 	
 	const FVector EnemyLoc = Enemy->GetActorLocation();
 	float ClosestDist = MAX_FLT;
-	FVector ClosestLoc;
+	FVector ClosestLoc = FVector::ZeroVector;
 		
 	for (const ATargetPoint* HidingLocation : HidingTargetPoints)
 	{

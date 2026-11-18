@@ -27,30 +27,9 @@ protected:
 	TObjectPtr<USceneComponent> RootComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MainMesh;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UCameraComponent> MainCamera;
-	
-	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
-	
-	UPROPERTY()
-	TObjectPtr<AHorrorGamePlayerController> PC;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BlendSpeed = 1.0f;
-	
-private:
-	UPROPERTY()
-	TObjectPtr<AActor> InteractingActor;
-	UPROPERTY()
-	TObjectPtr<APawn> Pawn;
-	
-	FTimerHandle ObjectiveTimerHandle;
-	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void Interactable_Implementation(AActor* InteractActor) override;
-	virtual void ExitFromInteractable();
-	
+	virtual void Interactable_Implementation(AActor* InteractActor) override PURE_VIRTUAL(AInteractableActor::Interactable_Implementation, );
 };

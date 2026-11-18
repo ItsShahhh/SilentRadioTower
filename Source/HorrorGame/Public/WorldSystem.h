@@ -10,30 +10,12 @@
 
 enum class ERandomEvent : uint8;
 class UGameSettings;
-struct FQuestData;
-struct FDialogueData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateLight, const bool, ToggleLight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateRandomEvent, const ERandomEvent, RandomEvent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedQuest, FGameplayTag, ActiveQuestTag);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateCrosshair, bool, bIsInteracting);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnableDialogue, const FDialogueData&, DialogueData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
 /**
  * 
  */
-
-USTRUCT()
-struct FActiveQuest
-{
-	GENERATED_BODY()
-	
-	UPROPERTY()
-	FGameplayTag ActiveQuestTag;
-	
-	UPROPERTY()
-	FGameplayTag NextActiveQuest;
-};
 
 UCLASS()
 class HORRORGAME_API UWorldSystem : public UWorldSubsystem
@@ -41,32 +23,16 @@ class HORRORGAME_API UWorldSystem : public UWorldSubsystem
 	GENERATED_BODY()
 	
 private:
-	FQuestData* FoundQuestData;
-	FActiveQuest ActiveQuest;
-	
 	bool bAlreadyInitiated = false;
 	
 	UPROPERTY()
 	const UGameSettings* GameSettings;
-	UPROPERTY()
-	TObjectPtr<UDataTable> LoadQuestTable;
-	UPROPERTY()
-	TObjectPtr<UDataTable> LoadDialogueTable;
 	
 public:
 	FOnUpdateLight OnUpdateLight;
-	FOnEnableDialogue OnProcessDialogue;
-	FOnUpdateQuest OnUpdateQuest;
-	FOnUpdateCrosshair OnUpdateCrosshair;
-	FOnCompletedQuest OnCompletedQuest;
 	FOnUpdateRandomEvent OnUpdateRandomEvent;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
-	UFUNCTION(BlueprintCallable)
-	void PlayDialogueData(const FGameplayTag DialogueTag) const;
-	UFUNCTION(BlueprintCallable)
-	void StartQuest(const FGameplayTag QuestTag);
-	void CompletedQuest();
 	void InitiateRandomEvent();
 };

@@ -228,6 +228,7 @@ void AHorrorGamePlayerController::UIModes()
 void AHorrorGamePlayerController::GameModes()
 {
 	CachedPauseMenu->SetVisibility(ESlateVisibility::Collapsed);
+	CachedOptionMenu->SetVisibility(ESlateVisibility::Collapsed);
 	CachedCrosshairWidget->SetVisibility(ESlateVisibility::Visible);
 		
 	SetInputMode(GameMode);

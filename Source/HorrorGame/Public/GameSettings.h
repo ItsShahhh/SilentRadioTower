@@ -14,11 +14,8 @@ class HORRORGAME_API UGameSettings : public UDeveloperSettings
 
 public:
 	// This will appear in the Project Settings menu for you to assign
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
-	TSoftObjectPtr<UDataTable> GlobalQuestTable;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
-	TSoftObjectPtr<UDataTable> GlobalDialogueTable;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Global Data")
+	TObjectPtr<UDataTable> GlobalQuestTable;
 	
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Global Data")
 	TMap<int32, ERandomEvent> RandomEventsMap;

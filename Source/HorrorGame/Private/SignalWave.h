@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractableBase.h"
+#include "PuzzleInteractables.h"
 #include "SignalWave.generated.h"
 
 class UArrowComponent;
@@ -12,7 +12,7 @@ class UInputAction;
 class UCameraComponent;
 
 UCLASS()
-class ASignalWave : public AInteractableBase
+class ASignalWave : public APuzzleInteractables
 {
 	GENERATED_BODY()
 	

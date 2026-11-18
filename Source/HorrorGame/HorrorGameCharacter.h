@@ -91,9 +91,6 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-	TSubclassOf<UDialogueWidget> DialogueWidgetClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
 	TSubclassOf<UQuestWidget> QuestWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Variables")
@@ -107,8 +104,6 @@ private:
 	
 	bool bDialogueMode = false;
 	
-	UPROPERTY()
-	TObjectPtr<UDialogueWidget> DialogueWidget;
 	UPROPERTY()
 	TObjectPtr<UQuestWidget> QuestWidget;
 	UPROPERTY()
