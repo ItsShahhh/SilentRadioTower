@@ -58,17 +58,7 @@ void AHorrorGameCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	PC = Cast<AHorrorGamePlayerController>(GetController());
-	
-	if (PC)
-	{
-		QuestWidget = CreateWidget<UQuestWidget>(PC, QuestWidgetClass);
-		
-		if (QuestWidget)
-		{
-			QuestWidget->AddToViewport();
-			QuestWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
+	checkf(PC, TEXT("Failed To Get Player Controller In Game Character"));
 }
 
 void AHorrorGameCharacter::Tick(float DeltaSeconds)

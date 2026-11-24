@@ -25,7 +25,7 @@ protected:
 	TObjectPtr<UQuestComponent>QuestComponent;
 	
 private:
-	void PickupKey();
+	void PickupKey() const;
 
 public:
 	// Called every frame

@@ -33,8 +33,7 @@ void AKeyBase::Interactable_Implementation(AActor* InteractActor)
 	PickupKey();
 }
 
-void AKeyBase::PickupKey()
+void AKeyBase::PickupKey() const
 {
 	QuestComponent->CompletedQuest();
-	Destroy();
 }

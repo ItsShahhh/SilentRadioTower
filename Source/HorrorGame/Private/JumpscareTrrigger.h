@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "JumpscareTrrigger.generated.h"
@@ -44,23 +45,33 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UBoxComponent>CollisionBox;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer", meta = (EditCondition = "JumpscareType == EJumpscareType::VisionTrigger", EditConditionHides))
 	TSoftObjectPtr<USkeletalMesh>SkeletalMesh;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer", meta = (EditCondition = "JumpscareType == EJumpscareType::VisionTrigger", EditConditionHides))
 	TSoftObjectPtr<ULevelSequence>LevSeq;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer", meta = (EditCondition = "JumpscareType == EJumpscareType::CollisionTrigger", EditConditionHides))
 	TSoftObjectPtr<UStaticMesh>StatMesh;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Soft Pointer", meta = (EditCondition = "JumpscareType == EJumpscareType::CollisionTrigger && JumpscareType == EJumpscareType::SoundTrigger", EditConditionHides))
 	TSoftObjectPtr<USoundBase>SoundBase;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "JumpscareType", meta = (EditCondition = "bQuestLoad", EditConditionHides))
+	FGameplayTag QuestTriggerTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "JumpscareType")
 	EJumpscareType JumpscareType;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "JumpscareType")
+	bool bQuestLoad = false;
+	
 private:
 	void AssetLoad();
+	void Preload();
 	void ObjectJumpscare();
 	void SoundJumpscare();
 	void LookingAtJumpscare();
+	
+	UFUNCTION()
+	void QuestPreLoad(const FGameplayTag& QuestTag);
 	
 	UFUNCTION()
 	void DestroyJumpscare();
@@ -75,7 +86,7 @@ private:
 	bool bAllLoaded = false;
 	
 	UFUNCTION()
-	void PreLoad(
+	void ColPreLoad(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

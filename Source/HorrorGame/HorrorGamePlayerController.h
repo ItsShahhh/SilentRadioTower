@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HorrorGamePlayerController.generated.h"
 
+class UQuestWidget;
 class AHorrorCharacter;
 class UCrosshairWidget;
 enum class ESettingMenus : uint8;
@@ -50,16 +51,22 @@ protected:
 	TObjectPtr<UUserWidget> MobileControlsWidget;
 	
 	UPROPERTY(EditDefaultsOnly, Category="User Widget")
-	TSubclassOf<UUserWidget> PauseMenuClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category="User Widget")
-	TSubclassOf<UUserWidget>OptionMenuClass;
+	TSubclassOf<UUserWidget> PauseClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category="User Widget")
 	TSubclassOf<UUserWidget>CrosshairClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category="User Widget")
+	TSubclassOf<UUserWidget>QuestClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category="User Widget")
+	TSoftClassPtr<UUserWidget>OptionClass;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Input Actions")
 	TObjectPtr<UInputAction>TogglePause;
+	
+	UPROPERTY(EditDefaultsOnly, Category="User Widget")
+	float UnloadTimer = 10.0f;
 	
 	/** If true, the player will use UMG touch controls even if not playing on mobile platforms */
 	UPROPERTY(EditAnywhere, Config, Category = "Input|Touch Controls")
@@ -92,18 +99,24 @@ private:
 	void ChangedSensValue(const float NewSensValue);
 	void UIModes();
 	void GameModes();
+	void LoadOption();
+	void UnloadOption();
 	
 	UPROPERTY()
-	TObjectPtr<UPauseMenuWidget> CachedPauseMenu;
-	UPROPERTY()
-	TObjectPtr<UOptionMenuWidget> CachedOptionMenu;
+	TObjectPtr<UPauseMenuWidget> CachedPauseWidget;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UOptionMenuWidget> CachedOptionWidget;
 	UPROPERTY()
 	TObjectPtr<UCrosshairWidget> CachedCrosshairWidget;
+	UPROPERTY()
+	TObjectPtr<UQuestWidget> CachedQuestWidget;
 	UPROPERTY()
 	TObjectPtr<APawn> MyPawn;
 	
 	FInputModeGameAndUI UIMode;
 	FInputModeGameOnly GameMode;
+	FTimerHandle UnloadTimerHandle;
 	
 	bool bPauseMenu = false;
+	bool bAlreadyLoaded = false;
 };

@@ -10,6 +10,10 @@
 
 struct FQuestData;
 class UGameSettings;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateQuest, const FQuestData&, QuestData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCheckJumpscare, const FGameplayTag&, JumpscareTag);
+
 /**
  * 
  */
@@ -23,13 +27,14 @@ private:
 	TObjectPtr<const UGameSettings>GameSettings;
 	UPROPERTY()
 	TObjectPtr<UDataTable>QuestTable;
-	
-	FQuestData* ActiveQuest;
-	
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	void StartQuest(const FGameplayTag QuestTag);
 	void CompletedQuest(const FGameplayTag QuestTag);
 	
+	FOnUpdateQuest OnUpdateQuest;
+	FOnCheckJumpscare OnCheckJumpscare;
 	FGameplayTagContainer FinishedQuestTag;
+	FQuestData* ActiveQuest;
 };

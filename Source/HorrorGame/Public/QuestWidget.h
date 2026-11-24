@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "QuestWidget.generated.h"
 
+class UQuestSubSystem;
 enum class ESettingMenus : uint8;
 struct FQuestData;
 class UWorldSystem;
@@ -23,7 +24,7 @@ protected:
 	
 private:
 	UPROPERTY()
-	TObjectPtr<UWorldSystem> WorldSystem;
+	TObjectPtr<UQuestSubSystem> QuestSubSystem;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> QuestName;
@@ -33,7 +34,5 @@ private:
 	
 	UFUNCTION()
 	void InitializeQuest(const FQuestData& QuestData) const;
-	UFUNCTION()
-	void ToggleWidget(const ESettingMenus CurrentSettingMenus);
 	
 };

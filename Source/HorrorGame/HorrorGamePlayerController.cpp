@@ -12,6 +12,8 @@
 #include "HorrorGame.h"
 #include "OptionMenuWidget.h"
 #include "PauseMenuWidget.h"
+#include "QuestSubSystem.h"
+#include "QuestWidget.h"
 #include "SettingMenuStates.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
@@ -25,38 +27,43 @@ void AHorrorGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (ensureAlwaysMsgf(PauseMenuClass, TEXT("Forgot To Put Pause Menu Class In Player Controller")))
+	if (ensureAlwaysMsgf(PauseClass, TEXT("Forgot To Put Pause Menu Class In Player Controller")))
 	{
-		auto* PauseMenu = CreateWidget<UPauseMenuWidget>(this, PauseMenuClass);
-		if (ensureAlwaysMsgf(PauseMenu, TEXT("Failed To Get Pause Menu Reference in Player Controller")))
+		CachedPauseWidget = CreateWidget<UPauseMenuWidget>(this, PauseClass);
+		if (ensureAlwaysMsgf(CachedPauseWidget, TEXT("Failed To Get Pause Menu Reference in Player Controller")))
 		{
-			PauseMenu->AddToViewport();
-			PauseMenu->SetVisibility(ESlateVisibility::Collapsed);
-			CachedPauseMenu = PauseMenu;
-			CachedPauseMenu->OnTogglePauseMenu.AddDynamic(this, &AHorrorGamePlayerController::ToggleWidget);
-		}
-	}
-	
-	if (ensureAlwaysMsgf(OptionMenuClass, TEXT("Failed To Get Option Menu Class In Player Controller")))
-	{
-		auto* OptionWidget = CreateWidget<UOptionMenuWidget>(this, OptionMenuClass);
-		if (ensureAlwaysMsgf(OptionWidget, TEXT("Failed To Get Option Menu Reference in Player Controller")))
-		{
-			OptionWidget->AddToViewport();
-			OptionWidget->SetVisibility(ESlateVisibility::Collapsed);
-			CachedOptionMenu = OptionWidget;
-			CachedOptionMenu->OnToggleOptionWidget.AddDynamic(this, &AHorrorGamePlayerController::ToggleWidget);
-			CachedOptionMenu->OnChangedSensValue.AddDynamic(this, &AHorrorGamePlayerController::ChangedSensValue);
+			CachedPauseWidget->AddToViewport();
+			CachedPauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+			CachedPauseWidget->OnTogglePauseMenu.AddDynamic(this, &AHorrorGamePlayerController::ToggleWidget);
 		}
 	}
 	
 	if (ensureAlwaysMsgf(CrosshairClass, TEXT("Forgot To Put Crosshair Class In Player Controller")))
 	{
-		auto* CrosshairWidget = CreateWidget<UCrosshairWidget>(this, CrosshairClass);
-		if (ensureAlwaysMsgf(CrosshairWidget, TEXT("Failed To Get Crosshair Widget Reference in Player Controller")))
+		CachedCrosshairWidget = CreateWidget<UCrosshairWidget>(this, CrosshairClass);
+		if (ensureAlwaysMsgf(CachedCrosshairWidget, TEXT("Failed To Get Crosshair Widget Reference in Player Controller")))
 		{
-			CrosshairWidget->AddToViewport();
-			CachedCrosshairWidget = CrosshairWidget;
+			CachedCrosshairWidget->AddToViewport();
+		}
+	}
+	
+	if (ensureAlwaysMsgf(QuestClass, TEXT("Forgot To Put Quest Class In Player Controller")))
+	{
+		CachedQuestWidget = CreateWidget<UQuestWidget>(this, QuestClass);
+		if (ensureAlwaysMsgf(CachedQuestWidget, TEXT("Failed To Get Quest Widget Reference in Player Controller")))
+		{
+			CachedQuestWidget->AddToViewport();
+			CachedQuestWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	
+	if (UQuestSubSystem* QuestSubSystem = GetGameInstance()->GetSubsystem<UQuestSubSystem>())
+	{
+		const FGameplayTag StartQuest = FGameplayTag::RequestGameplayTag(FName("Quest.Test"));
+		
+		if (StartQuest.IsValid())
+		{
+			QuestSubSystem->StartQuest(StartQuest);
 		}
 	}
 	
@@ -144,11 +151,13 @@ void AHorrorGamePlayerController::TogglePauseMenu()
 	if (!bPauseMenu)
 	{
 		UIModes();
+		LoadOption();
 		bPauseMenu = true;
 	}
 	else
 	{
 		GameModes();
+		UnloadOption();
 		bPauseMenu = false;
 	}
 }
@@ -158,20 +167,24 @@ void AHorrorGamePlayerController::ToggleWidget(const ESettingMenus CurrentMenus)
 	switch (CurrentMenus)
 	{
 	case ESettingMenus::Resume:
-		CachedPauseMenu->SetVisibility(ESlateVisibility::Collapsed);
+		CachedPauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+		CachedQuestWidget->SetVisibility(ESlateVisibility::Collapsed);
 		CachedCrosshairWidget->SetVisibility(ESlateVisibility::Visible);
 		GameModes();
+		UnloadOption();
 		bPauseMenu = false;
 		break;
 		
 	case ESettingMenus::Options:
-		CachedPauseMenu->SetVisibility(ESlateVisibility::Collapsed);
-		CachedOptionMenu->SetVisibility(ESlateVisibility::Visible);
+		CachedPauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+		CachedQuestWidget->SetVisibility(ESlateVisibility::Collapsed);
+		CachedOptionWidget->SetVisibility(ESlateVisibility::Visible);
 		break;
 		
 	case ESettingMenus::BackMenu:
-		CachedPauseMenu->SetVisibility(ESlateVisibility::Visible);
-		CachedOptionMenu->SetVisibility(ESlateVisibility::Collapsed);
+		CachedPauseWidget->SetVisibility(ESlateVisibility::Visible);
+		CachedQuestWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		CachedOptionWidget->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 		
 	default:
@@ -216,7 +229,8 @@ void AHorrorGamePlayerController::UnInteractingMode(AActor* InteractingActor, co
 
 void AHorrorGamePlayerController::UIModes()
 {
-	CachedPauseMenu->SetVisibility(ESlateVisibility::Visible);
+	CachedPauseWidget->SetVisibility(ESlateVisibility::Visible);
+	CachedQuestWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	CachedCrosshairWidget->SetVisibility(ESlateVisibility::Collapsed);
 		
 	SetInputMode(UIMode);
@@ -227,12 +241,47 @@ void AHorrorGamePlayerController::UIModes()
 
 void AHorrorGamePlayerController::GameModes()
 {
-	CachedPauseMenu->SetVisibility(ESlateVisibility::Collapsed);
-	CachedOptionMenu->SetVisibility(ESlateVisibility::Collapsed);
+	CachedPauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+	CachedQuestWidget->SetVisibility(ESlateVisibility::Collapsed);
+	CachedOptionWidget->SetVisibility(ESlateVisibility::Collapsed);
 	CachedCrosshairWidget->SetVisibility(ESlateVisibility::Visible);
 		
 	SetInputMode(GameMode);
 	bShowMouseCursor = false;
 	SetIgnoreMoveInput(false);
 	SetIgnoreLookInput(false);
+}
+
+void AHorrorGamePlayerController::LoadOption()
+{
+	if (bAlreadyLoaded)
+	{
+		GetWorldTimerManager().ClearTimer(UnloadTimerHandle);
+		return;
+	}
+	
+	CachedOptionWidget = CreateWidget<UOptionMenuWidget>(this, OptionClass.LoadSynchronous());
+	if (!ensureAlwaysMsgf(CachedOptionWidget, TEXT("Failed To Get Option Menu Reference in Player Controller"))) return;
+	
+	bAlreadyLoaded = true;
+	
+	CachedOptionWidget->AddToViewport();
+	CachedOptionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	CachedOptionWidget->OnToggleOptionWidget.AddDynamic(this, &AHorrorGamePlayerController::ToggleWidget);
+	CachedOptionWidget->OnChangedSensValue.AddDynamic(this, &AHorrorGamePlayerController::ChangedSensValue);
+}
+
+void AHorrorGamePlayerController::UnloadOption()
+{
+	GetWorldTimerManager().SetTimer(UnloadTimerHandle, FTimerDelegate::CreateWeakLambda(this, [this]
+	{
+		CachedOptionWidget->RemoveFromParent();
+		CachedOptionWidget->OnToggleOptionWidget.RemoveDynamic(this, &AHorrorGamePlayerController::ToggleWidget);
+		CachedOptionWidget->OnChangedSensValue.RemoveDynamic(this, &AHorrorGamePlayerController::ChangedSensValue);
+		CachedOptionWidget = nullptr;
+		bAlreadyLoaded = false;
+	}
+	),
+	UnloadTimer,
+	false);
 }

@@ -36,6 +36,9 @@ void UQuestComponent::CompletedQuest() const
 	if (!ensureAlwaysMsgf(CompletedQuestTag.IsValid(), TEXT("Forgot To Set Completed Quest Tag In Quest Component"))) return;
 	
 	QuestSubSystem->CompletedQuest(CompletedQuestTag);
+	
+	//Destroy Interact Quest Item Only After Calling Completed Quest To Make Sure It Still Get The Tag
+	GetOwner()->Destroy();
 }
 
 bool UQuestComponent::RequiredQuest() const

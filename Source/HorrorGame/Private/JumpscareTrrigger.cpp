@@ -6,6 +6,7 @@
 #include "Engine/StreamableManager.h"
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
+#include "QuestSubSystem.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -91,7 +92,20 @@ void AJumpscareTrigger::BeginPlay()
 		break;
 	}
 	
-	PreLoadBox->OnComponentBeginOverlap.AddDynamic(this, &AJumpscareTrigger::PreLoad);
+	if (bQuestLoad)
+	{
+		if (UQuestSubSystem* QuestSubSystem = GetGameInstance()->GetSubsystem<UQuestSubSystem>())
+		{
+			QuestSubSystem->OnCheckJumpscare.AddDynamic(this, &AJumpscareTrigger::QuestPreLoad);
+		}
+		
+		PreLoadBox->DestroyComponent();
+	}
+	
+	if (PreLoadBox)
+	{
+		PreLoadBox->OnComponentBeginOverlap.AddDynamic(this, &AJumpscareTrigger::ColPreLoad);
+	}
 }
 
 // Called every frame
@@ -105,40 +119,55 @@ void AJumpscareTrigger::Tick(float DeltaTime)
 	}
 }
 
-void AJumpscareTrigger::PreLoad(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AJumpscareTrigger::ColPreLoad(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Unbind From PreloadBox So It Doesn't Trigger Twice
-	PreLoadBox->OnComponentBeginOverlap.RemoveDynamic(this, &AJumpscareTrigger::PreLoad);
+	PreLoadBox->OnComponentBeginOverlap.RemoveDynamic(this, &AJumpscareTrigger::ColPreLoad);
 
 	if (OtherActor->ActorHasTag("Player"))
 	{
-		TArray<FSoftObjectPath> ListToLoad;
-		
-		switch (JumpscareType)
-		{
-		case EJumpscareType::VisionTrigger:
-		
-			ListToLoad.Add(SkeletalMesh.ToSoftObjectPath());
-			ListToLoad.Add(LevSeq.ToSoftObjectPath());
-			break;
-		
-		case EJumpscareType::CollisionTrigger:
-		
-			ListToLoad.Add(StatMesh.ToSoftObjectPath());
-			ListToLoad.Add(SoundBase.ToSoftObjectPath());
-			break;
-		
-		case EJumpscareType::SoundTrigger:
-		
-			ListToLoad.Add(SoundBase.ToSoftObjectPath());
-			break;
-		
-		default:
-			break;
-		}
-	
-		PreLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(ListToLoad, FStreamableDelegate::CreateUObject(this, &AJumpscareTrigger::AssetLoad));
+		Preload();
 	}
+}
+
+void AJumpscareTrigger::QuestPreLoad(const FGameplayTag& QuestTag)
+{
+	if (!ensureMsgf(QuestTriggerTag.IsValid(), TEXT("Forgot To Set Quest Trigger Tag In Jumpscare Trigger"))) return;
+	
+	if (QuestTriggerTag.MatchesTag(QuestTag))
+	{
+		Preload();
+	}
+}
+
+void AJumpscareTrigger::Preload()
+{
+	TArray<FSoftObjectPath> ListToLoad;
+		
+	switch (JumpscareType)
+	{
+	case EJumpscareType::VisionTrigger:
+		
+		ListToLoad.Add(SkeletalMesh.ToSoftObjectPath());
+		ListToLoad.Add(LevSeq.ToSoftObjectPath());
+		break;
+		
+	case EJumpscareType::CollisionTrigger:
+		
+		ListToLoad.Add(StatMesh.ToSoftObjectPath());
+		ListToLoad.Add(SoundBase.ToSoftObjectPath());
+		break;
+		
+	case EJumpscareType::SoundTrigger:
+		
+		ListToLoad.Add(SoundBase.ToSoftObjectPath());
+		break;
+		
+	default:
+		break;
+	}
+	
+	PreLoadHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(ListToLoad, FStreamableDelegate::CreateUObject(this, &AJumpscareTrigger::AssetLoad));
 }
 
 void AJumpscareTrigger::AssetLoad()
