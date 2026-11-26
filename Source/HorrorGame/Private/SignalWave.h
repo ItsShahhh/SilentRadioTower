@@ -28,7 +28,7 @@ protected:
 	TObjectPtr<UStaticMeshComponent> KnobMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
-	TObjectPtr<UArrowComponent> ArrowComp;
+	TObjectPtr<UStaticMeshComponent> ScreenMesh;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Inputs")
 	TObjectPtr<UInputAction> MouseRotateAction;
@@ -46,7 +46,6 @@ private:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
 	virtual void Interactable_Implementation(AActor* InteractActor) override;
 
 };

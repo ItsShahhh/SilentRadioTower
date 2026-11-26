@@ -15,8 +15,8 @@ ASignalWave::ASignalWave()
 	KnobMesh = CreateDefaultSubobject<UStaticMeshComponent>("KnobMesh");
 	KnobMesh->SetupAttachment(MainMesh);
 	
-	ArrowComp = CreateDefaultSubobject<UArrowComponent>("Arrow Component");
-	ArrowComp->SetupAttachment(KnobMesh);
+	ScreenMesh = CreateDefaultSubobject<UStaticMeshComponent>("ScreenMesh");
+	ScreenMesh->SetupAttachment(MainMesh);
 }
 
 // Called when the game starts or when spawned
@@ -75,12 +75,12 @@ void ASignalWave::RotateKnob(const FInputActionValue& Value)
 	const float ClampKnobRotation = FMath::Clamp(CleanKnobRotation, -90.f, 90.f);
 	
 	//Used Set Relative Instead Of Add Local Because Add Local Just Add The Rotation And It Doesn't Know If Knob Already -90/90 Degrees
-	KnobMesh->SetRelativeRotation(FRotator(0.0f, ClampKnobRotation, 0.0f));
+	KnobMesh->SetRelativeRotation(FRotator(0.0f, -180.0f, ClampKnobRotation));
 	
 	if (ClampKnobRotation == KnobRotationObjective)
 	{
 		//Set All Back To Default
-		KnobMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+		KnobMesh->SetRelativeRotation(FRotator(0.0f, -180.0f, 0.0f));
 		MouseKnobRotation = 0.0f;
 		
 		WorldSystem->InitiateRandomEvent();
